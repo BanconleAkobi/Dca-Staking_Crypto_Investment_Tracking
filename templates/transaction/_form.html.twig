@@ -1,0 +1,11 @@
+{{ form_start(form, { action: path('transaction_new', {symbol: crypto}) }) }}
+  {{ form_row(form.type) }}
+  {{ form_row(form.date) }}
+  {{ form_row(form.quantity) }}
+  {{ form_row(form.unit_price_usd) }}
+  {{ form_row(form.fee_usd) }}
+  {{ form_row(form.note) }}
+<div class="d-flex justify-content-end">
+    <button class="btn btn-primary">Enregistrer</button>
+</div>
+{{ form_end(form) }}

@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="mb-1">Créer un compte</h5>
+                    <p class="text-muted mb-4">Accédez à votre suivi DCA en quelques secondes.</p>
+
+                    {{ form_start(registrationForm, { attr: { novalidate: 'novalidate', id: 'register-form' } }) }}
+                    {{ form_errors(registrationForm) }}
+
+                    {# Email #}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.email, 'Email', { label_attr: { class: 'form-label' } }) }}
+                        {{ form_widget(registrationForm.email, {
+                            attr: { class: 'form-control', placeholder: 'you@example.com', autocomplete: 'email' }
+                        }) }}
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+
+                    {# Mot de passe avec afficher/masquer + jauge #}
+                    <div class="mb-2">
+                        {{ form_label(registrationForm.plainPassword, 'Mot de passe', { label_attr: { class: 'form-label' } }) }}
+                        <div class="input-group">
+                            {{ form_widget(registrationForm.plainPassword, {
+                                attr: { class: 'form-control', id: 'plainPassword', autocomplete: 'new-password', minlength: 8 }
+                            }) }}
+                            <button class="btn btn-outline-secondary" type="button" id="togglePwd" tabindex="-1">Afficher</button>
+                        </div>
+                        <div class="form-text">8+ caractères, idéalement avec majuscules, chiffres et symbole.</div>
+                        {{ form_errors(registrationForm.plainPassword) }}
+                    </div>
+                    <div class="progress mb-3" style="height:6px;">
+                        <div class="progress-bar" id="pwdStrength" role="progressbar" style="width:0%"></div>
+                    </div>
+
+                    {# Case RGPD/CGU si ton form la contient #}
+                    {% if registrationForm.agreeTerms is defined %}
+                        <div class="mb-3">
+                            {{ form_row(registrationForm.agreeTerms) }}
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
+                    {{ form_end(registrationForm) }}
+
+                    <div class="text-center mt-3">
+                        <small class="text-muted">Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a></small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        (function() {
+            const pwd = document.getElementById('plainPassword');
+            const bar = document.getElementById('pwdStrength');
+            const btn = document.getElementById('togglePwd');
+            if (!pwd || !bar) return;
+
+            function score(s){
+                let sc = 0; if(!s) return 0;
+                if (s.length >= 8) sc++;
+                if (/[A-Z]/.test(s)) sc++;
+                if (/[a-z]/.test(s)) sc++;
+                if (/[0-9]/.test(s)) sc++;
+                if (/[^A-Za-z0-9]/.test(s)) sc++;
+                return sc; // 0..5
+            }
+            function render(){
+                const s = score(pwd.value);
+                const pct = (s/5)*100;
+                bar.style.width = pct + '%';
+                bar.className = 'progress-bar';
+                if (s <= 2) bar.classList.add('bg-danger');
+                else if (s === 3) bar.classList.add('bg-warning');
+                else bar.classList.add('bg-success');
+            }
+            pwd.addEventListener('input', render);
+            render();
+
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    const isPwd = pwd.getAttribute('type') === 'password';
+                    pwd.setAttribute('type', isPwd ? 'text' : 'password');
+                    btn.textContent = isPwd ? 'Masquer' : 'Afficher';
+                });
+            }
+        })();
+    </script>
+{% endblock %}
