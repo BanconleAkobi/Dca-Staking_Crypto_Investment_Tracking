@@ -1,0 +1,20 @@
+<h1>Bienvenue {{ app.user }}</h1>
+
+<p>
+    Nous sommes ravis de vous compter parmi nos membres.<br>
+    Votre inscription a bien été prise en compte.
+</p>
+
+<p>
+    <strong>Confirmez votre compte :</strong><br>
+    <a href="{{ signedUrl|raw }}">Confirmer mon email</a>.<br>
+    Ce lien expirera dans {{ expiresAtMessageKey|trans(expiresAtMessageData, 'VerifyEmailBundle') }}.
+</p>
+
+<p>
+    N'hésitez pas à explorer votre espace personnel et à profiter de toutes les fonctionnalités de notre site.
+</p>
+
+<p>
+    L'équipe vous souhaite une excellente expérience !
+</p>

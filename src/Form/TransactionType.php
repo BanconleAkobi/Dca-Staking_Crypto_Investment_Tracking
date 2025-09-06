@@ -47,12 +47,6 @@ class TransactionType extends AbstractType
                 'required' => false,
                 'attr' => ['rows' => 2, 'class' => 'form-control']
             ])
-            ->add('crypto', EntityType::class, [
-                'class' => Crypto::class,          // (ou Crypto::class)
-                'choice_label' => 'symbol',       // affichera BTC, SOL, ETH
-                'placeholder' => 'Select a crypto…',
-                'attr' => ['class' => 'form-select'],
-            ])
         ;
     }
 

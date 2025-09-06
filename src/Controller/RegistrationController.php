@@ -47,8 +47,8 @@ class RegistrationController extends AbstractController
                 (new TemplatedEmail())
                     ->from(new Address('mrbiazone@gmail.com', 'Dca Investment Bot'))
                     ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
-                    ->htmlTemplate('registration/confirmation_email.html.twig')
+                    ->subject('Bienvenue dans votre site de suivi de vos investissements !')
+                    ->htmlTemplate('registration/bienvenue.html.twig')
             );
 
             // do anything else you need here, like send an email

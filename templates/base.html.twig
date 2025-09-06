@@ -12,10 +12,10 @@
         <a class="navbar-brand" href="{{ path('app_dashboard') }}">DCA Tracker</a>
         <div>
             {% if app.user %}
-                <span class="me-3">{{ app.user.email }}</span>
-                <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_logout') }}">Logout</a>
+                <span class="me-3">{{ app.user.pseudo }}</span>
+                <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_logout') }}">Déconnexion</a>
             {% else %}
-                <a class="btn btn-primary btn-sm" href="{{ path('app_login') }}">Login</a>
+                <a class="btn btn-primary btn-sm" href="{{ path('app_login') }}">Connexion</a>
             {% endif %}
         </div>
     </div>

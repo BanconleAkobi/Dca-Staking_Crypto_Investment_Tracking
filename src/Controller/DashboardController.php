@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Form\TransactionType;
 use App\Repository\CryptoRepository;
 use App\Repository\TransactionRepository;

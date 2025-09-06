@@ -11,6 +11,16 @@
                     {{ form_start(registrationForm, { attr: { novalidate: 'novalidate', id: 'register-form' } }) }}
                     {{ form_errors(registrationForm) }}
 
+
+                    {# Pseudo #}
+                    <div class="mb-3">
+                        {{ form_label(registrationForm.pseudo, 'Pseudo', { label_attr: { class: 'form-label' } }) }}
+                        {{ form_widget(registrationForm.pseudo, {
+                            attr: { class: 'form-control', placeholder: 'Votre pseudo', autocomplete: 'username' }
+                        }) }}
+                        {{ form_errors(registrationForm.pseudo) }}
+                    </div>
+
                     {# Email #}
                     <div class="mb-3">
                         {{ form_label(registrationForm.email, 'Email', { label_attr: { class: 'form-label' } }) }}
@@ -36,12 +46,13 @@
                         <div class="progress-bar" id="pwdStrength" role="progressbar" style="width:0%"></div>
                     </div>
 
-                    {# Case RGPD/CGU si ton form la contient #}
+                    {#
                     {% if registrationForm.agreeTerms is defined %}
                         <div class="mb-3">
                             {{ form_row(registrationForm.agreeTerms) }}
                         </div>
                     {% endif %}
+                    #}
 
                     <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
                     {{ form_end(registrationForm) }}
@@ -58,7 +69,12 @@
 {% block javascripts %}
     <script>
         (function() {
-            const pwd = document.getElementById('plainPassword');
+            let pwd = document.getElementById('plainPassword');
+            if (!pwd) {
+                pwd = document.querySelector('input[name$="[plainPassword]"]');
+            }
+
+            console.log(pwd);
             const bar = document.getElementById('pwdStrength');
             const btn = document.getElementById('togglePwd');
             if (!pwd || !bar) return;
