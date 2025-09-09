@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Email envoyé - DCA Tracker{% endblock %}
+
+{% block main_class %}auth-main{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="success-page">
+                <div class="success-icon">
+                    <i class="fas fa-envelope-open"></i>
+                </div>
+                
+                <h1 class="mb-3">Email envoyé !</h1>
+                <p class="lead text-muted mb-4">
+                    Si un compte correspondant à votre email existe, nous venons de vous envoyer un email contenant un lien pour réinitialiser votre mot de passe.
+                </p>
+                
+                <div class="alert alert-info-modern alert-modern">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Délai d'expiration :</strong><br>
+                    Ce lien expirera dans {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+                </div>
+                
+                <div class="alert alert-warning-modern alert-modern">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Vous ne recevez pas l'email ?</strong><br>
+                    Vérifiez votre dossier spam ou 
+                    <a href="{{ path('app_forgot_password_request') }}" class="auth-link">essayez à nouveau</a>.
+                </div>
+                
+                <div class="text-center mt-4">
+                    <a href="{{ path('app_login') }}" class="btn btn-primary-modern btn-modern me-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Retour à la connexion
+                    </a>
+                    <a href="{{ path('app_register') }}" class="btn btn-secondary-modern btn-modern">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Créer un compte
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

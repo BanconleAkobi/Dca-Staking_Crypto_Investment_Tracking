@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mot de passe oublié - DCA Tracker{% endblock %}
+
+{% block main_class %}auth-main{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+    <div class="row g-0 w-100">
+        <!-- Hero Section with Image -->
+        <div class="col-lg-6 d-none d-lg-block">
+            <div class="auth-hero">
+                <div class="auth-hero-content">
+                    <h1>Mot de passe oublié ?</h1>
+                    <p>Pas de panique ! Nous allons vous aider à récupérer l'accès à votre compte. Entrez votre email et nous vous enverrons un lien de réinitialisation.</p>
+                    
+                    <!-- Placeholder for DALL-E generated image -->
+                    <div class="hero-image-placeholder">
+                        <div class="placeholder-content">
+                            <i class="fas fa-key fa-3x mb-3"></i>
+                            <p class="mb-0">Your password reset request</p>
+                            <small class="text-muted">Password reset security visualization</small>
+                        </div>
+                         <img src="/images/crypto-password-reset.jpg" alt="Password Reset Security" class="hero-image"> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Password Reset Form Section -->
+        <div class="col-lg-6">
+            <div class="d-flex align-items-center justify-content-center min-vh-100 p-4">
+                <div class="auth-card">
+                    <div class="auth-card-header">
+                        <h1>Réinitialiser le mot de passe</h1>
+                        <p>Entrez votre email pour recevoir un lien de réinitialisation</p>
+                    </div>
+                    
+                    <div class="auth-card-body">
+                        {% for flash_error in app.flashes('reset_password_error') %}
+                            <div class="alert alert-danger-modern alert-modern">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ flash_error }}
+                            </div>
+                        {% endfor %}
+
+                        {{ form_start(requestForm, { 
+                            attr: { 
+                                class: 'auth-form'
+                            } 
+                        }) }}
+                        
+                        <div class="form-group">
+                            {{ form_label(requestForm.email, 'Adresse email', { 
+                                label_attr: { class: 'form-label' } 
+                            }) }}
+                            <div class="input-group">
+                                {{ form_widget(requestForm.email, {
+                                    attr: { 
+                                        class: 'form-control', 
+                                        placeholder: 'votre@email.com',
+                                        autocomplete: 'email'
+                                    }
+                                }) }}
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            {% if requestForm.email.vars.errors|length > 0 %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_errors(requestForm.email) }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="alert alert-info-modern alert-modern">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Comment ça marche ?</strong><br>
+                            Entrez votre adresse email et nous vous enverrons un lien sécurisé pour réinitialiser votre mot de passe. Ce lien expirera dans 1 heure.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-modern btn-modern w-100 mb-3">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            Envoyer le lien de réinitialisation
+                        </button>
+                        
+                        {{ form_end(requestForm) }}
+                        
+                        <div class="text-center">
+                            <p class="text-muted mb-2">Vous vous souvenez de votre mot de passe ?</p>
+                            <a href="{{ path('app_login') }}" class="btn btn-secondary-modern btn-modern w-100 mb-2">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Retour à la connexion
+                            </a>
+                            
+                            <a href="{{ path('app_register') }}" class="auth-link">
+                                <i class="fas fa-user-plus me-1"></i>
+                                Créer un nouveau compte
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submission with loading state
+    const form = document.querySelector('.auth-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Envoi en cours...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Transactions{% endblock %}
+{% block page_subtitle %}Historique de toutes vos opérations{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Mes Transactions</h2>
+        <p class="text-muted mb-0">Historique complet de vos opérations</p>
+    </div>
+    <a href="{{ path('app_transaction_new') }}" class="btn btn-primary-modern btn-modern">
+        <i class="fas fa-plus me-2"></i>
+        Nouvelle transaction
+    </a>
+</div>
+
+{% if transactions|length > 0 %}
+    <div class="content-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-history"></i>
+                Toutes les transactions
+            </h3>
+            <div class="card-actions">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary active">Toutes</button>
+                    <button class="btn btn-outline-primary">Achats</button>
+                    <button class="btn btn-outline-primary">Staking</button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Cryptomonnaie</th>
+                            <th>Type</th>
+                            <th>Quantité</th>
+                            <th>Prix unitaire</th>
+                            <th>Frais</th>
+                            <th>Montant total</th>
+                            <th>Note</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                            <tr>
+                                <td>
+                                    <div class="transaction-date">
+                                        <div class="date-main">{{ transaction.date|date('d/m/Y') }}</div>
+                                        <div class="date-time">{{ transaction.date|date('H:i') }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="crypto-symbol me-2">{{ transaction.crypto.symbol }}</div>
+                                        <div class="crypto-name">{{ transaction.crypto.name }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if transaction.type == 'BUY' %}
+                                        <span class="status-badge buy">Achat</span>
+                                    {% elseif transaction.type == 'STAKE_REWARD' %}
+                                        <span class="status-badge stake">Staking</span>
+                                    {% else %}
+                                        <span class="status-badge neutral">{{ transaction.type }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="transaction-quantity">{{ transaction.quantity }}</span>
+                                </td>
+                                <td>
+                                    {% if transaction.unitPriceUsd %}
+                                        <span class="transaction-price">${{ transaction.unitPriceUsd|number_format(2, '.', ' ') }}</span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.feeUsd %}
+                                        <span class="transaction-fee">${{ transaction.feeUsd|number_format(2, '.', ' ') }}</span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.unitPriceUsd %}
+                                        {% set totalAmount = (transaction.unitPriceUsd * transaction.quantity) + (transaction.feeUsd ?? 0) %}
+                                        <span class="transaction-total">${{ totalAmount|number_format(2, '.', ' ') }}</span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if transaction.note %}
+                                        <span class="transaction-note" title="{{ transaction.note }}">
+                                            {{ transaction.note|length > 30 ? transaction.note|slice(0, 30) ~ '...' : transaction.note }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ path('app_transaction_show', {'id': transaction.id}) }}" class="btn btn-outline-secondary" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="btn btn-outline-primary" title="Modifier">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form method="post" action="{{ path('app_transaction_delete', {'id': transaction.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ transaction.id) }}">
+                                            <button type="submit" class="btn btn-outline-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-exchange-alt fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">Aucune transaction</h3>
+            <p class="text-muted mb-4">Commencez par ajouter votre première transaction.</p>
+            <a href="{{ path('app_transaction_new') }}" class="btn btn-primary-modern btn-modern">
+                <i class="fas fa-plus me-2"></i>
+                Ajouter ma première transaction
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter buttons
+    const filterButtons = document.querySelectorAll('.card-actions .btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Here you would typically filter the table
+            console.log('Filter changed to:', this.textContent);
+        });
+    });
+});
+</script>
+{% endblock %}

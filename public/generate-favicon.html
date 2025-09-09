@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favicon Generator - DCA Tracker</title>
+</head>
+<body>
+    <h1>DCA Tracker Favicon Generator</h1>
+    <p>This page generates the favicon for DCA Tracker. The favicon is already created as favicon.svg.</p>
+    
+    <canvas id="favicon16" width="16" height="16" style="border: 1px solid #ccc; margin: 10px;"></canvas>
+    <canvas id="favicon32" width="32" height="32" style="border: 1px solid #ccc; margin: 10px;"></canvas>
+    
+    <script>
+        // Generate 16x16 favicon
+        const canvas16 = document.getElementById('favicon16');
+        const ctx16 = canvas16.getContext('2d');
+        
+        // Background gradient
+        const gradient16 = ctx16.createLinearGradient(0, 0, 16, 16);
+        gradient16.addColorStop(0, '#667eea');
+        gradient16.addColorStop(1, '#764ba2');
+        
+        ctx16.fillStyle = gradient16;
+        ctx16.fillRect(0, 0, 16, 16);
+        
+        // Chart line
+        ctx16.strokeStyle = '#fff';
+        ctx16.lineWidth = 1.5;
+        ctx16.beginPath();
+        ctx16.moveTo(3, 11);
+        ctx16.lineTo(5, 9);
+        ctx16.lineTo(7, 10);
+        ctx16.lineTo(9, 7);
+        ctx16.lineTo(11, 8);
+        ctx16.lineTo(13, 6);
+        ctx16.stroke();
+        
+        // Data points
+        ctx16.fillStyle = '#fff';
+        ctx16.beginPath();
+        ctx16.arc(5, 9, 1, 0, 2 * Math.PI);
+        ctx16.fill();
+        ctx16.beginPath();
+        ctx16.arc(7, 10, 1, 0, 2 * Math.PI);
+        ctx16.fill();
+        ctx16.beginPath();
+        ctx16.arc(9, 7, 1, 0, 2 * Math.PI);
+        ctx16.fill();
+        ctx16.beginPath();
+        ctx16.arc(11, 8, 1, 0, 2 * Math.PI);
+        ctx16.fill();
+        
+        // Generate 32x32 favicon
+        const canvas32 = document.getElementById('favicon32');
+        const ctx32 = canvas32.getContext('2d');
+        
+        const gradient32 = ctx32.createLinearGradient(0, 0, 32, 32);
+        gradient32.addColorStop(0, '#667eea');
+        gradient32.addColorStop(1, '#764ba2');
+        
+        ctx32.fillStyle = gradient32;
+        ctx32.fillRect(0, 0, 32, 32);
+        
+        // Chart line
+        ctx32.strokeStyle = '#fff';
+        ctx32.lineWidth = 2.5;
+        ctx32.beginPath();
+        ctx32.moveTo(6, 22);
+        ctx32.lineTo(10, 18);
+        ctx32.lineTo(14, 20);
+        ctx32.lineTo(18, 14);
+        ctx32.lineTo(22, 16);
+        ctx32.lineTo(26, 12);
+        ctx32.stroke();
+        
+        // Data points
+        ctx32.fillStyle = '#fff';
+        ctx32.beginPath();
+        ctx32.arc(10, 18, 1.5, 0, 2 * Math.PI);
+        ctx32.fill();
+        ctx32.beginPath();
+        ctx32.arc(14, 20, 1.5, 0, 2 * Math.PI);
+        ctx32.fill();
+        ctx32.beginPath();
+        ctx32.arc(18, 14, 1.5, 0, 2 * Math.PI);
+        ctx32.fill();
+        ctx32.beginPath();
+        ctx32.arc(22, 16, 1.5, 0, 2 * Math.PI);
+        ctx32.fill();
+        
+        // Crypto symbol
+        ctx32.fillStyle = '#fff';
+        ctx32.beginPath();
+        ctx32.arc(8, 8, 3, 0, 2 * Math.PI);
+        ctx32.fill();
+        
+        ctx32.fillStyle = gradient32;
+        ctx32.font = 'bold 4px Arial';
+        ctx32.textAlign = 'center';
+        ctx32.fillText('₿', 8, 10);
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Favicon Files</title>
+</head>
+<body>
+    <h1>Creating Favicon Files...</h1>
+    <div id="status"></div>
+    
+    <script>
+        function createFavicon(size, filename) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            
+            // Draw background circle
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size/2 - 1, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Draw white border
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = Math.max(1, size/32);
+            ctx.stroke();
+            
+            // Draw chart line
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = Math.max(1, size/16);
+            ctx.beginPath();
+            
+            const scale = size/32;
+            ctx.moveTo(6 * scale, 22 * scale);
+            ctx.lineTo(10 * scale, 18 * scale);
+            ctx.lineTo(14 * scale, 20 * scale);
+            ctx.lineTo(18 * scale, 14 * scale);
+            ctx.lineTo(22 * scale, 16 * scale);
+            ctx.lineTo(26 * scale, 12 * scale);
+            ctx.stroke();
+            
+            // Draw data points
+            ctx.fillStyle = '#fff';
+            const pointRadius = Math.max(1, size/20);
+            const points = [
+                [10 * scale, 18 * scale],
+                [14 * scale, 20 * scale],
+                [18 * scale, 14 * scale],
+                [22 * scale, 16 * scale]
+            ];
+            
+            points.forEach(([x, y]) => {
+                ctx.beginPath();
+                ctx.arc(x, y, pointRadius, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Draw crypto symbol (only for larger sizes)
+            if (size >= 32) {
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(8 * scale, 8 * scale, 3 * scale, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                ctx.fillStyle = gradient;
+                ctx.font = `bold ${4 * scale}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.fillText('₿', 8 * scale, 10 * scale);
+            }
+            
+            // Download the file
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            return filename;
+        }
+        
+        // Create all required favicon files
+        const files = [
+            { size: 16, name: 'favicon-16x16.png' },
+            { size: 32, name: 'favicon-32x32.png' },
+            { size: 180, name: 'apple-touch-icon.png' },
+            { size: 192, name: 'android-chrome-192x192.png' },
+            { size: 512, name: 'android-chrome-512x512.png' }
+        ];
+        
+        const status = document.getElementById('status');
+        let index = 0;
+        
+        function createNext() {
+            if (index < files.length) {
+                const file = files[index];
+                status.innerHTML = `Creating ${file.name}...`;
+                createFavicon(file.size, file.name);
+                index++;
+                setTimeout(createNext, 500);
+            } else {
+                status.innerHTML = 'All favicon files created! Please save them to your public/ directory.';
+            }
+        }
+        
+        // Start creating files
+        createNext();
+    </script>
+</body>
+</html>

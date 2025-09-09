@@ -1,112 +1,275 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}Inscription - DCA Tracker{% endblock %}
+
+{% block main_class %}auth-main{% endblock %}
+
 {% block body %}
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="mb-1">Créer un compte</h5>
-                    <p class="text-muted mb-4">Accédez à votre suivi DCA en quelques secondes.</p>
-
-                    {{ form_start(registrationForm, { attr: { novalidate: 'novalidate', id: 'register-form' } }) }}
-                    {{ form_errors(registrationForm) }}
-
-
-                    {# Pseudo #}
-                    <div class="mb-3">
-                        {{ form_label(registrationForm.pseudo, 'Pseudo', { label_attr: { class: 'form-label' } }) }}
-                        {{ form_widget(registrationForm.pseudo, {
-                            attr: { class: 'form-control', placeholder: 'Votre pseudo', autocomplete: 'username' }
-                        }) }}
-                        {{ form_errors(registrationForm.pseudo) }}
+<div class="auth-container">
+    <div class="row g-0 w-100">
+        <!-- Hero Section with Image -->
+        <div class="col-lg-6 d-none d-lg-block">
+            <div class="auth-hero">
+                <div class="auth-hero-content">
+                    <h1>Rejoignez DCA Tracker</h1>
+                    <p>Commencez à suivre vos investissements crypto dès aujourd'hui. Interface intuitive, analyses détaillées, et suivi en temps réel.</p>
+                    
+                    <!-- Placeholder for DALL-E generated image -->
+                    <div class="hero-image-placeholder">
+                        <div class="placeholder-content">
+                            <i class="fas fa-rocket fa-3x mb-3"></i>
+                            <p class="mb-0">Bienvenue sur ton tracker favori crypto</p>
+                            <small class="text-muted">Crypto portfolio growth visualization</small>
+                        </div>
+                        <!-- TODO: Replace with DALL-E generated image -->
+                         <img src="/images/crypto-register.jpg" alt="Crypto Portfolio Growth" class="hero-image"> 
                     </div>
-
-                    {# Email #}
-                    <div class="mb-3">
-                        {{ form_label(registrationForm.email, 'Email', { label_attr: { class: 'form-label' } }) }}
-                        {{ form_widget(registrationForm.email, {
-                            attr: { class: 'form-control', placeholder: 'you@example.com', autocomplete: 'email' }
-                        }) }}
-                        {{ form_errors(registrationForm.email) }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Registration Form Section -->
+        <div class="col-lg-6">
+            <div class="d-flex align-items-center justify-content-center min-vh-100 p-4">
+                <div class="auth-card">
+                    <div class="auth-card-header">
+                        <h1>Créer un compte</h1>
+                        <p>Commencez votre aventure crypto</p>
                     </div>
+                    
+                    <div class="auth-card-body">
+                        {{ form_start(registrationForm, { 
+                            attr: { 
+                                novalidate: 'novalidate', 
+                                id: 'register-form',
+                                class: 'auth-form'
+                            } 
+                        }) }}
+                        
+                        {% if registrationForm.vars.errors|length > 0 %}
+                            <div class="alert alert-danger-modern alert-modern">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ form_errors(registrationForm) }}
+                            </div>
+                        {% endif %}
 
-                    {# Mot de passe avec afficher/masquer + jauge #}
-                    <div class="mb-2">
-                        {{ form_label(registrationForm.plainPassword, 'Mot de passe', { label_attr: { class: 'form-label' } }) }}
-                        <div class="input-group">
-                            {{ form_widget(registrationForm.plainPassword, {
-                                attr: { class: 'form-control', id: 'plainPassword', autocomplete: 'new-password', minlength: 8 }
+                        <!-- Pseudo Field -->
+                        <div class="form-group">
+                            {{ form_label(registrationForm.pseudo, 'Pseudo', { 
+                                label_attr: { class: 'form-label' } 
                             }) }}
-                            <button class="btn btn-outline-secondary" type="button" id="togglePwd" tabindex="-1">Afficher</button>
+                            <div class="input-group">
+                                {{ form_widget(registrationForm.pseudo, {
+                                    attr: { 
+                                        class: 'form-control', 
+                                        placeholder: 'Votre pseudo unique',
+                                        autocomplete: 'username'
+                                    }
+                                }) }}
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                            </div>
+                            {% if registrationForm.pseudo.vars.errors|length > 0 %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_errors(registrationForm.pseudo) }}
+                                </div>
+                            {% endif %}
                         </div>
-                        <div class="form-text">8+ caractères, idéalement avec majuscules, chiffres et symbole.</div>
-                        {{ form_errors(registrationForm.plainPassword) }}
-                    </div>
-                    <div class="progress mb-3" style="height:6px;">
-                        <div class="progress-bar" id="pwdStrength" role="progressbar" style="width:0%"></div>
-                    </div>
 
-                    {#
-                    {% if registrationForm.agreeTerms is defined %}
-                        <div class="mb-3">
-                            {{ form_row(registrationForm.agreeTerms) }}
+                        <!-- Email Field -->
+                        <div class="form-group">
+                            {{ form_label(registrationForm.email, 'Email', { 
+                                label_attr: { class: 'form-label' } 
+                            }) }}
+                            <div class="input-group">
+                                {{ form_widget(registrationForm.email, {
+                                    attr: { 
+                                        class: 'form-control', 
+                                        placeholder: 'votre@email.com',
+                                        autocomplete: 'email'
+                                    }
+                                }) }}
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                            </div>
+                            {% if registrationForm.email.vars.errors|length > 0 %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_errors(registrationForm.email) }}
+                                </div>
+                            {% endif %}
                         </div>
-                    {% endif %}
-                    #}
 
-                    <button type="submit" class="btn btn-primary w-100">S'inscrire</button>
-                    {{ form_end(registrationForm) }}
+                        <!-- Password Field with Strength Indicator -->
+                        <div class="form-group">
+                            {{ form_label(registrationForm.plainPassword, 'Mot de passe', { 
+                                label_attr: { class: 'form-label' } 
+                            }) }}
+                            <div class="input-group">
+                                {{ form_widget(registrationForm.plainPassword, {
+                                    attr: { 
+                                        class: 'form-control', 
+                                        id: 'plainPassword', 
+                                        autocomplete: 'new-password',
+                                        minlength: 8,
+                                        placeholder: 'Minimum 8 caractères'
+                                    }
+                                }) }}
+                                <button class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="togglePwd">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Password Strength Indicator -->
+                            <div class="password-strength mt-2">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>Force du mot de passe</span>
+                                    <span id="strength-text">Faible</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar" 
+                                         id="pwdStrength" 
+                                         role="progressbar" 
+                                         style="width: 0%"
+                                         aria-valuenow="0" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                8+ caractères, idéalement avec majuscules, chiffres et symboles.
+                            </div>
+                            
+                            {% if registrationForm.plainPassword.vars.errors|length > 0 %}
+                                <div class="text-danger small mt-1">
+                                    {{ form_errors(registrationForm.plainPassword) }}
+                                </div>
+                            {% endif %}
+                        </div>
 
-                    <div class="text-center mt-3">
-                        <small class="text-muted">Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a></small>
+                        <!-- Terms Agreement (if exists) -->
+                        {% if registrationForm.agreeTerms is defined %}
+                            <div class="form-group">
+                                <div class="form-check">
+                                    {{ form_widget(registrationForm.agreeTerms, {
+                                        attr: { class: 'form-check-input' }
+                                    }) }}
+                                    {{ form_label(registrationForm.agreeTerms, 'J\'accepte les conditions d\'utilisation', {
+                                        label_attr: { class: 'form-check-label' }
+                                    }) }}
+                                </div>
+                                {% if registrationForm.agreeTerms.vars.errors|length > 0 %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form_errors(registrationForm.agreeTerms) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary-modern btn-modern w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Créer mon compte
+                        </button>
+                        
+                        {{ form_end(registrationForm) }}
+                        
+                        <div class="text-center">
+                            <p class="text-muted mb-2">Déjà un compte ?</p>
+                            <a href="{{ path('app_login') }}" class="btn btn-secondary-modern btn-modern w-100">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Se connecter
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        (function() {
-            let pwd = document.getElementById('plainPassword');
-            if (!pwd) {
-                pwd = document.querySelector('input[name$="[plainPassword]"]');
-            }
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Find password input - try multiple selectors
+    let pwd = document.getElementById('plainPassword');
+    if (!pwd) {
+        pwd = document.querySelector('input[name*="plainPassword"]');
+    }
+    if (!pwd) {
+        pwd = document.querySelector('input[type="password"]');
+    }
+    
+    const bar = document.getElementById('pwdStrength');
+    const strengthText = document.getElementById('strength-text');
+    const btn = document.getElementById('togglePwd');
+    
+    console.log('Password input found:', pwd);
+    console.log('Strength bar found:', bar);
+    console.log('Strength text found:', strengthText);
+    console.log('Toggle button found:', btn);
+    
+    if (!pwd || !bar || !strengthText) {
+        console.error('Required elements not found for password strength indicator');
+        return;
+    }
 
-            console.log(pwd);
-            const bar = document.getElementById('pwdStrength');
-            const btn = document.getElementById('togglePwd');
-            if (!pwd || !bar) return;
+    // Password strength calculation
+    function calculateStrength(password) {
+        let score = 0;
+        if (!password) return { score: 0, text: 'Faible', color: 'bg-danger' };
+        
+        if (password.length >= 8) score++;
+        if (password.length >= 12) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+        
+        if (score <= 2) return { score: (score/6)*100, text: 'Faible', color: 'bg-danger' };
+        if (score <= 4) return { score: (score/6)*100, text: 'Moyen', color: 'bg-warning' };
+        if (score <= 5) return { score: (score/6)*100, text: 'Bon', color: 'bg-info' };
+        return { score: (score/6)*100, text: 'Très fort', color: 'bg-success' };
+    }
 
-            function score(s){
-                let sc = 0; if(!s) return 0;
-                if (s.length >= 8) sc++;
-                if (/[A-Z]/.test(s)) sc++;
-                if (/[a-z]/.test(s)) sc++;
-                if (/[0-9]/.test(s)) sc++;
-                if (/[^A-Za-z0-9]/.test(s)) sc++;
-                return sc; // 0..5
-            }
-            function render(){
-                const s = score(pwd.value);
-                const pct = (s/5)*100;
-                bar.style.width = pct + '%';
-                bar.className = 'progress-bar';
-                if (s <= 2) bar.classList.add('bg-danger');
-                else if (s === 3) bar.classList.add('bg-warning');
-                else bar.classList.add('bg-success');
-            }
-            pwd.addEventListener('input', render);
-            render();
+    function updateStrength() {
+        const result = calculateStrength(pwd.value);
+        bar.style.width = result.score + '%';
+        bar.className = 'progress-bar ' + result.color;
+        strengthText.textContent = result.text;
+    }
 
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    const isPwd = pwd.getAttribute('type') === 'password';
-                    pwd.setAttribute('type', isPwd ? 'text' : 'password');
-                    btn.textContent = isPwd ? 'Masquer' : 'Afficher';
-                });
+    pwd.addEventListener('input', updateStrength);
+    updateStrength();
+
+    // Toggle password visibility
+    if (btn) {
+        btn.addEventListener('click', function() {
+            const isPwd = pwd.getAttribute('type') === 'password';
+            pwd.setAttribute('type', isPwd ? 'text' : 'password');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    }
+    
+    // Form submission with loading state
+    const form = document.getElementById('register-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Création du compte...';
+                submitBtn.disabled = true;
             }
-        })();
-    </script>
+        });
+    }
+});
+</script>
 {% endblock %}

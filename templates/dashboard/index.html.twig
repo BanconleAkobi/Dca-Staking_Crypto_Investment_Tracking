@@ -1,91 +1,380 @@
-{% extends 'base.html.twig' %}
-{% block body %}
-    <div class="d-flex align-items-center mb-3 gap-2">
-        <form method="get" action="{{ path('app_dashboard') }}" class="me-2">
-            <select name="crypto" class="form-select" onchange="this.form.submit()">
-                {% for a in ['BTC','SOL','ETH'] %}
-                    <option value="{{ a }}" {{ a==crypto ? 'selected' }}>{{ a }}</option>
-                {% endfor %}
-            </select>
-        </form>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#txModal">Ajouter une opération</button>
-    </div>
+{% extends 'dashboard/layout.html.twig' %}
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <canvas id="dcaChart" height="110"></canvas>
+{% block page_title %}Tableau de bord{% endblock %}
+{% block page_subtitle %}Vue d'ensemble de votre portefeuille crypto{% endblock %}
+
+{% block dashboard_content %}
+<!-- Stats Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Valeur totale du portefeuille</div>
+            <div class="stat-icon primary">
+                <i class="fas fa-wallet"></i>
+            </div>
+        </div>
+        <div class="stat-value">${{ stats.total_value|number_format(2, '.', ' ') }}</div>
+        <div class="stat-change {{ stats.total_gain_loss >= 0 ? 'positive' : 'negative' }}">
+            <i class="fas fa-arrow-{{ stats.total_gain_loss >= 0 ? 'up' : 'down' }}"></i>
+            {{ stats.total_gain_loss_percent|number_format(1) }}% ({{ stats.total_gain_loss >= 0 ? 'gain' : 'perte' }})
         </div>
     </div>
-
-    <div class="card">
-        <div class="card-header">Opérations {{ crypto }}</div>
-        <div class="card-body p-0">
-            <table class="table table-sm table-striped mb-0">
-                <thead><tr>
-                    <th>Date</th><th>Type</th><th>Qté</th><th>Prix USD</th><th>Frais</th><th>Montant</th><th>Note</th>
-                </tr></thead>
-                <tbody>
-                {% for t in transactions %}
-                    <tr>
-                        <td>{{ t.date|date('Y-m-d') }}</td>
-                        <td>{{ t.type }}</td>
-                        <td>{{ t.quantity }}</td>
-                        <td>{{ t.unitPriceUsd ?? '—' }}</td>
-                        <td>{{ t.feeUsd ?? '—' }}</td>
-                        <td>
-                            {% set invested = (t.type=='BUY' and t.unitPriceUsd) ? (t.unitPriceUsd * t.quantity + (t.feeUsd ?? 0)) : 0 %}
-                            {{ invested ? invested|number_format(2, '.', ' ') : '—' }}
-                        </td>
-                        <td>{{ t.note ?? '' }}</td>
-                    </tr>
-                {% else %}
-                    <tr><td colspan="7" class="text-center py-3 text-muted">Aucune opération</td></tr>
-                {% endfor %}
-                </tbody>
-            </table>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Investissement total</div>
+            <div class="stat-icon success">
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </div>
+        <div class="stat-value">${{ stats.total_invested|number_format(2, '.', ' ') }}</div>
+        <div class="stat-change neutral">
+            <i class="fas fa-info-circle"></i>
+            Capital investi
         </div>
     </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Nombre de cryptos</div>
+            <div class="stat-icon warning">
+                <i class="fas fa-coins"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.crypto_count }}</div>
+        <div class="stat-change neutral">
+            <i class="fas fa-minus"></i>
+            En portefeuille
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Dernière opération</div>
+            <div class="stat-icon danger">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+        <div class="stat-value">
+            {% if stats.last_transaction %}
+                {{ stats.last_transaction.date|date('d/m') }}
+            {% else %}
+                —
+            {% endif %}
+        </div>
+        <div class="stat-change neutral">
+            <i class="fas fa-info-circle"></i>
+            {% if stats.last_transaction %}
+                {{ stats.last_transaction.type == 'BUY' ? 'Achat' : 'Staking' }} {{ stats.last_transaction.crypto }}
+            {% else %}
+                Aucune
+            {% endif %}
+        </div>
+    </div>
+</div>
 
-    {# Modale #}
-    <div class="modal fade" id="txModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header"><h5 class="modal-title">Nouvelle opération {{ crypto }}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body">
-                    {{ include('transaction/_form.html.twig', { form: form, crypto: crypto }) }}
+<!-- Portfolio Overview -->
+<div class="content-card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-chart-pie"></i>
+            Répartition du portefeuille
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-8">
+                <canvas id="portfolioChart" height="300"></canvas>
+            </div>
+            <div class="col-lg-4">
+                <div class="portfolio-legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f7931a;"></div>
+                        <div class="legend-info">
+                            <div class="legend-name">Bitcoin (BTC)</div>
+                            <div class="legend-value">$7,200.00 (58%)</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #627eea;"></div>
+                        <div class="legend-info">
+                            <div class="legend-name">Ethereum (ETH)</div>
+                            <div class="legend-value">$3,450.00 (28%)</div>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #9945ff;"></div>
+                        <div class="legend-info">
+                            <div class="legend-name">Solana (SOL)</div>
+                            <div class="legend-value">$1,800.00 (14%)</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Crypto Performance -->
+{% if portfolio_data.holdings|length > 0 %}
+<div class="crypto-grid">
+    {% for symbol, holding in portfolio_data.holdings %}
+        {% set cryptoValue = portfolio_data.portfolio_value.crypto_values[symbol] %}
+        <div class="crypto-card">
+            <div class="crypto-header">
+                <div class="crypto-info">
+                    <div class="crypto-symbol">{{ symbol }}</div>
+                    <div class="crypto-name">{{ holding.name }}</div>
+                </div>
+                <div class="crypto-price">${{ cryptoValue.current_price|number_format(2, '.', ' ') }}</div>
+            </div>
+            <div class="crypto-change {{ cryptoValue.gain_loss >= 0 ? 'positive' : 'negative' }}">
+                <i class="fas fa-arrow-{{ cryptoValue.gain_loss >= 0 ? 'up' : 'down' }}"></i>
+                {{ cryptoValue.gain_loss_percent|number_format(1) }}% ({{ cryptoValue.gain_loss >= 0 ? 'gain' : 'perte' }})
+            </div>
+            <div class="crypto-stats">
+                <div class="crypto-stat">
+                    <div class="crypto-stat-value">{{ holding.quantity|number_format(8, '.', '') }}</div>
+                    <div class="crypto-stat-label">Quantité</div>
+                </div>
+                <div class="crypto-stat">
+                    <div class="crypto-stat-value">${{ cryptoValue.current_value|number_format(2, '.', ' ') }}</div>
+                    <div class="crypto-stat-label">Valeur</div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5">
+    <div class="empty-state">
+        <i class="fas fa-coins fa-3x text-muted mb-3"></i>
+        <h3 class="text-muted">Aucune crypto en portefeuille</h3>
+        <p class="text-muted mb-4">Commencez par ajouter vos premières transactions.</p>
+        <a href="{{ path('app_transaction_new') }}" class="btn btn-primary-modern btn-modern">
+            <i class="fas fa-plus me-2"></i>
+            Ajouter ma première transaction
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Transactions -->
+<div class="content-card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-history"></i>
+            Opérations récentes
+        </h3>
+        <a href="{{ path('app_transaction_index') }}" class="btn btn-outline-primary btn-sm">
+            Voir tout
+        </a>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_transactions|length > 0 %}
+        <div class="table-responsive">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Crypto</th>
+                        <th>Type</th>
+                        <th>Quantité</th>
+                        <th>Prix</th>
+                        <th>Montant</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in recent_transactions %}
+                    <tr>
+                        <td>
+                            <div class="transaction-date">
+                                <div class="date-main">{{ transaction.date|date('d/m/Y') }}</div>
+                                <div class="date-time">{{ transaction.date|date('H:i') }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="crypto-symbol me-2">{{ transaction.crypto.symbol }}</div>
+                                {{ transaction.crypto.name }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if transaction.type == 'BUY' %}
+                                <span class="status-badge buy">Achat</span>
+                            {% elseif transaction.type == 'STAKE_REWARD' %}
+                                <span class="status-badge stake">Staking</span>
+                            {% else %}
+                                <span class="status-badge neutral">{{ transaction.type }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ transaction.quantity|number_format(8, '.', '') }}</td>
+                        <td>
+                            {% if transaction.unitPriceUsd %}
+                                ${{ transaction.unitPriceUsd|number_format(2, '.', ' ') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if transaction.unitPriceUsd %}
+                                {% set totalAmount = (transaction.unitPriceUsd * transaction.quantity) + (transaction.feeUsd ?? 0) %}
+                                ${{ totalAmount|number_format(2, '.', ' ') }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ path('app_transaction_show', {'id': transaction.id}) }}" class="btn btn-outline-secondary" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="btn btn-outline-primary" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+            <p class="text-muted mb-0">Aucune transaction récente</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Performance Chart -->
+<div class="content-card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-chart-line"></i>
+            Performance du portefeuille
+        </h3>
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary active">7J</button>
+            <button class="btn btn-outline-primary">30J</button>
+            <button class="btn btn-outline-primary">90J</button>
+            <button class="btn btn-outline-primary">1A</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <canvas id="performanceChart" height="100"></canvas>
+    </div>
+</div>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        (async function() {
-            const res = await fetch('{{ path('api_series', {symbol: crypto}) }}');
-            const data = await res.json();
-            const ctx = document.getElementById('dcaChart');
-
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.labels,
-                    datasets: [
-                        { label: 'Quantité cumulée', data: data.quantityCumulative, tension: 0.2 },
-                        { label: 'Investi cumulé (USD)', data: data.investedCumulative, yAxisID: 'y1', tension: 0.2 }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    interaction: { mode: 'index', intersect: false },
-                    stacked: false,
-                    scales: {
-                        y: { title: { display: true, text: 'Quantité' } },
-                        y1: { position: 'right', title: { display: true, text: 'USD' }, grid: { drawOnChartArea: false } }
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Portfolio Pie Chart
+    const portfolioCtx = document.getElementById('portfolioChart');
+    if (portfolioCtx) {
+        new Chart(portfolioCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Bitcoin', 'Ethereum', 'Solana'],
+                datasets: [{
+                    data: [58, 28, 14],
+                    backgroundColor: ['#f7931a', '#627eea', '#9945ff'],
+                    borderWidth: 0,
+                    cutout: '60%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 }
-            });
-        })();
-    </script>
+            }
+        });
+    }
+    
+    // Performance Line Chart
+    const performanceCtx = document.getElementById('performanceChart');
+    if (performanceCtx) {
+        const labels = [];
+        const data = [];
+        
+        // Generate sample data for the last 7 days
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            labels.push(date.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' }));
+            data.push(10000 + Math.random() * 3000);
+        }
+        
+        new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Valeur du portefeuille (USD)',
+                    data: data,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#667eea',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.1)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+    
+    // Time period buttons
+    const timeButtons = document.querySelectorAll('.btn-group .btn');
+    timeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            timeButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Here you would typically update the chart data
+            console.log('Time period changed to:', this.textContent);
+        });
+    });
+});
+</script>
 {% endblock %}

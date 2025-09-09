@@ -1,0 +1,340 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Analyses{% endblock %}
+{% block page_subtitle %}Analysez la performance de votre portefeuille{% endblock %}
+
+{% block dashboard_content %}
+<!-- Performance Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Performance totale</div>
+            <div class="stat-icon {{ stats.total_gain_loss >= 0 ? 'success' : 'danger' }}">
+                <i class="fas fa-chart-line"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.total_gain_loss_percent|number_format(1) }}%</div>
+        <div class="stat-change {{ stats.total_gain_loss >= 0 ? 'positive' : 'negative' }}">
+            <i class="fas fa-arrow-{{ stats.total_gain_loss >= 0 ? 'up' : 'down' }}"></i>
+            ${{ stats.total_gain_loss|number_format(2, '.', ' ') }}
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">ROI (Retour sur investissement)</div>
+            <div class="stat-icon primary">
+                <i class="fas fa-percentage"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.total_gain_loss_percent|number_format(1) }}%</div>
+        <div class="stat-change neutral">
+            <i class="fas fa-info-circle"></i>
+            Sur {{ stats.total_invested|number_format(0) }}$ investis
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Diversification</div>
+            <div class="stat-icon warning">
+                <i class="fas fa-layer-group"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.crypto_count }}</div>
+        <div class="stat-change neutral">
+            <i class="fas fa-coins"></i>
+            Cryptomonnaies
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-header">
+            <div class="stat-title">Activité</div>
+            <div class="stat-icon danger">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+        </div>
+        <div class="stat-value">{{ stats.transactions_count }}</div>
+        <div class="stat-change neutral">
+            <i class="fas fa-exchange-alt"></i>
+            Transactions
+        </div>
+    </div>
+</div>
+
+<!-- Performance Chart -->
+<div class="content-card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-chart-line"></i>
+            Évolution du portefeuille
+        </h3>
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-outline-primary active" data-period="7">7J</button>
+            <button class="btn btn-outline-primary" data-period="30">30J</button>
+            <button class="btn btn-outline-primary" data-period="90">90J</button>
+            <button class="btn btn-outline-primary" data-period="365">1A</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <canvas id="performanceChart" height="100"></canvas>
+    </div>
+</div>
+
+<!-- Portfolio Allocation -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Répartition du portefeuille
+                </h3>
+            </div>
+            <div class="card-body">
+                <canvas id="allocationChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-trophy"></i>
+                    Performance par crypto
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="crypto-performance-list">
+                    {% for symbol, holding in portfolio_data.holdings %}
+                        {% set cryptoValue = portfolio_data.portfolio_value.crypto_values[symbol] %}
+                        <div class="performance-item">
+                            <div class="crypto-info">
+                                <div class="crypto-symbol">{{ symbol }}</div>
+                                <div class="crypto-name">{{ holding.name }}</div>
+                            </div>
+                            <div class="performance-data">
+                                <div class="performance-value {{ cryptoValue.gain_loss >= 0 ? 'positive' : 'negative' }}">
+                                    {{ cryptoValue.gain_loss_percent|number_format(1) }}%
+                                </div>
+                                <div class="performance-amount">
+                                    ${{ cryptoValue.gain_loss|number_format(2, '.', ' ') }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Analytics -->
+<div class="content-card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-chart-bar"></i>
+            Analyses détaillées
+        </h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="analytics-metric">
+                    <div class="metric-label">Valeur moyenne par transaction</div>
+                    <div class="metric-value">
+                        {% if stats.transactions_count > 0 %}
+                            ${{ (stats.total_invested / stats.transactions_count)|number_format(2, '.', ' ') }}
+                        {% else %}
+                            $0.00
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="analytics-metric">
+                    <div class="metric-label">Meilleure performance</div>
+                    <div class="metric-value">
+                        {% set bestCrypto = null %}
+                        {% set bestPerformance = -999 %}
+                        {% for symbol, holding in portfolio_data.holdings %}
+                            {% set cryptoValue = portfolio_data.portfolio_value.crypto_values[symbol] %}
+                            {% if cryptoValue.gain_loss_percent > bestPerformance %}
+                                {% set bestPerformance = cryptoValue.gain_loss_percent %}
+                                {% set bestCrypto = symbol %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if bestCrypto %}
+                            {{ bestCrypto }} ({{ bestPerformance|number_format(1) }}%)
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="analytics-metric">
+                    <div class="metric-label">Pire performance</div>
+                    <div class="metric-value">
+                        {% set worstCrypto = null %}
+                        {% set worstPerformance = 999 %}
+                        {% for symbol, holding in portfolio_data.holdings %}
+                            {% set cryptoValue = portfolio_data.portfolio_value.crypto_values[symbol] %}
+                            {% if cryptoValue.gain_loss_percent < worstPerformance %}
+                                {% set worstPerformance = cryptoValue.gain_loss_percent %}
+                                {% set worstCrypto = symbol %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if worstCrypto %}
+                            {{ worstCrypto }} ({{ worstPerformance|number_format(1) }}%)
+                        {% else %}
+                            —
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Performance Chart
+    const performanceCtx = document.getElementById('performanceChart');
+    if (performanceCtx) {
+        loadPerformanceChart(7); // Default to 7 days
+    }
+    
+    // Allocation Chart
+    const allocationCtx = document.getElementById('allocationChart');
+    if (allocationCtx) {
+        loadAllocationChart();
+    }
+    
+    // Period buttons
+    const periodButtons = document.querySelectorAll('[data-period]');
+    periodButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            periodButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const period = this.dataset.period;
+            loadPerformanceChart(period);
+        });
+    });
+    
+    function loadPerformanceChart(period) {
+        fetch(`{{ path('app_analytics_performance') }}?period=${period}`)
+            .then(response => response.json())
+            .then(data => {
+                new Chart(performanceCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Valeur du portefeuille',
+                            data: data.values,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#667eea',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6
+                        }, {
+                            label: 'Investissement total',
+                            data: data.invested,
+                            borderColor: '#28a745',
+                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                            pointBackgroundColor: '#28a745',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading performance chart:', error);
+            });
+    }
+    
+    function loadAllocationChart() {
+        const portfolioData = {{ portfolio_data.portfolio_value.crypto_values|json_encode|raw }};
+        const labels = [];
+        const data = [];
+        const colors = ['#f7931a', '#627eea', '#9945ff', '#00d4aa', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
+        
+        Object.keys(portfolioData).forEach((symbol, index) => {
+            labels.push(symbol);
+            data.push(portfolioData[symbol].current_value);
+        });
+        
+        new Chart(allocationCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: colors.slice(0, labels.length),
+                    borderWidth: 0,
+                    cutout: '60%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

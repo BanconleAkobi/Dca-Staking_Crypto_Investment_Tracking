@@ -45,12 +45,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Transaction::class, mappedBy: 'user')]
     private Collection $transactions;
 
+    /**
+     * @var Collection<int, Crypto>
+     */
+    #[ORM\OneToMany(targetEntity: Crypto::class, mappedBy: 'user')]
+    private Collection $cryptos;
+
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $pseudo = null;
+
+    #[ORM\OneToOne(targetEntity: UserSubscription::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?UserSubscription $subscription = null;
 
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
+        $this->cryptos = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -184,6 +194,58 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPseudo(?string $pseudo): static
     {
         $this->pseudo = $pseudo;
+
+        return $this;
+    }
+
+    public function getSubscription(): ?UserSubscription
+    {
+        return $this->subscription;
+    }
+
+    public function setSubscription(?UserSubscription $subscription): static
+    {
+        $this->subscription = $subscription;
+
+        return $this;
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->subscription && $this->subscription->isActive();
+    }
+
+    public function getSubscriptionPlan(): string
+    {
+        return $this->subscription ? $this->subscription->getPlan() : 'free';
+    }
+
+    /**
+     * @return Collection<int, Crypto>
+     */
+    public function getCryptos(): Collection
+    {
+        return $this->cryptos;
+    }
+
+    public function addCrypto(Crypto $crypto): static
+    {
+        if (!$this->cryptos->contains($crypto)) {
+            $this->cryptos->add($crypto);
+            $crypto->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCrypto(Crypto $crypto): static
+    {
+        if ($this->cryptos->removeElement($crypto)) {
+            // set the owning side to null (unless already changed)
+            if ($crypto->getUser() === $this) {
+                $crypto->setUser(null);
+            }
+        }
 
         return $this;
     }

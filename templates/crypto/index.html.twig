@@ -1,0 +1,84 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Cryptomonnaies{% endblock %}
+{% block page_subtitle %}Gérez vos cryptomonnaies suivies{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Mes Cryptomonnaies</h2>
+        <p class="text-muted mb-0">Suivez vos investissements crypto</p>
+    </div>
+    <a href="{{ path('app_crypto_new') }}" class="btn btn-primary-modern btn-modern">
+        <i class="fas fa-plus me-2"></i>
+        Ajouter une crypto
+    </a>
+</div>
+
+{% if cryptos|length > 0 %}
+    <div class="crypto-grid">
+        {% for crypto in cryptos %}
+            <div class="crypto-card">
+                <div class="crypto-header">
+                    <div class="crypto-info">
+                        <div class="crypto-symbol">{{ crypto.symbol }}</div>
+                        <div class="crypto-name">{{ crypto.name }}</div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ path('app_crypto_show', {'id': crypto.id}) }}">
+                                <i class="fas fa-eye me-2"></i>Voir
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ path('app_crypto_edit', {'id': crypto.id}) }}">
+                                <i class="fas fa-edit me-2"></i>Modifier
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{{ path('app_crypto_delete', {'id': crypto.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette cryptomonnaie ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ crypto.id) }}">
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-trash me-2"></i>Supprimer
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="crypto-stats">
+                    <div class="crypto-stat">
+                        <div class="crypto-stat-value">{{ crypto.transactions|length }}</div>
+                        <div class="crypto-stat-label">Transactions</div>
+                    </div>
+                    <div class="crypto-stat">
+                        <div class="crypto-stat-value">$0.00</div>
+                        <div class="crypto-stat-label">Valeur actuelle</div>
+                    </div>
+                </div>
+                
+                <div class="crypto-actions mt-3">
+                    <a href="{{ path('app_dashboard', {'crypto': crypto.symbol}) }}" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Voir le tableau de bord
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-coins fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">Aucune cryptomonnaie</h3>
+            <p class="text-muted mb-4">Commencez par ajouter vos premières cryptomonnaies à suivre.</p>
+            <a href="{{ path('app_crypto_new') }}" class="btn btn-primary-modern btn-modern">
+                <i class="fas fa-plus me-2"></i>
+                Ajouter ma première crypto
+            </a>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,461 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord - DCA Tracker{% endblock %}
+
+{% block main_class %}dashboard-layout{% endblock %}
+
+{% block body_class %}dashboard-body{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
+                <i class="fas fa-chart-line"></i>
+                <span>DCA Tracker</span>
+            </div>
+            <button class="sidebar-close d-lg-none" id="sidebarClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ path('app_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'app_dashboard' ? 'active' : '' }}">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Tableau de bord</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_crypto_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_crypto' ? 'active' : '' }}">
+                        <i class="fas fa-coins"></i>
+                        <span>Cryptomonnaies</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_transaction_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_transaction' ? 'active' : '' }}">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_analytics_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_analytics' ? 'active' : '' }}">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Analyses</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_billing_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_billing' ? 'active' : '' }}">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Facturation</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_settings_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_settings' ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        <span>Paramètres</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name">{{ app.user.pseudo }}</div>
+                    <div class="user-email">{{ app.user.email }}</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <header class="dashboard-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle d-lg-none me-3" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">{% block page_title %}Tableau de bord{% endblock %}</h1>
+                <p class="page-subtitle">{% block page_subtitle %}Gérez vos investissements crypto{% endblock %}</p>
+            </div>
+            <div class="header-right">
+                <div class="header-actions">
+                    <!-- Theme Toggle -->
+                    <div class="theme-toggle-header">
+                        <input type="checkbox" id="header-theme-toggle" class="theme-switch">
+                        <label for="header-theme-toggle" class="theme-switch-label">
+                            <span class="theme-switch-slider"></span>
+                            <span class="theme-switch-text">
+                                <span class="light-text">☀️</span>
+                                <span class="dark-text">🌙</span>
+                            </span>
+                        </label>
+                    </div>
+                    
+                    {% if app.request.get('_route') == 'app_dashboard' %}
+                        <a href="{{ path('app_reports_portfolio') }}" class="btn btn-outline-primary btn-modern d-none d-md-inline-block me-2">
+                            <i class="fas fa-file-pdf me-2"></i>
+                            Rapport PDF
+                        </a>
+                    {% endif %}
+                    
+                    <button class="btn btn-primary-modern btn-modern d-none d-md-inline-block" data-bs-toggle="modal" data-bs-target="#quickAddModal">
+                        <i class="fas fa-plus me-2"></i>
+                        Ajouter une opération
+                    </button>
+                    
+                    <!-- Mobile Add Button -->
+                    <button class="btn btn-primary-modern btn-modern d-md-none" data-bs-toggle="modal" data-bs-target="#quickAddModal">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <div class="dashboard-content">
+            {% block dashboard_content %}{% endblock %}
+        </div>
+    </main>
+</div>
+
+<!-- Quick Add Modal -->
+<div class="modal fade" id="quickAddModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Ajouter une opération
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="quick-add-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Cryptomonnaie</label>
+                                <select class="form-control" id="quickCrypto">
+                                    <option value="">Sélectionner une crypto</option>
+                                    <option value="BTC">Bitcoin (BTC)</option>
+                                    <option value="ETH">Ethereum (ETH)</option>
+                                    <option value="SOL">Solana (SOL)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Type d'opération</label>
+                                <select class="form-control" id="quickType">
+                                    <option value="BUY">Achat</option>
+                                    <option value="STAKE_REWARD">Récompense de staking</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Quantité</label>
+                                <input type="number" class="form-control" id="quickQuantity" step="0.00000001" placeholder="0.00000000">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Prix unitaire (USD)</label>
+                                <input type="number" class="form-control" id="quickPrice" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Frais (USD)</label>
+                                <input type="number" class="form-control" id="quickFee" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="quickDate" value="{{ "now"|date("Y-m-d") }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Note (optionnel)</label>
+                        <textarea class="form-control" id="quickNote" rows="2" placeholder="Ajoutez une note..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary-modern btn-modern" data-bs-dismiss="modal">
+                    Annuler
+                </button>
+                <button type="button" class="btn btn-primary-modern btn-modern" id="saveQuickTransaction">
+                    <i class="fas fa-save me-2"></i>
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu functionality
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const sidebar = document.getElementById('dashboardSidebar');
+    let isOpeningSidebar = false;
+    
+    // Open sidebar when mobile menu button is clicked
+    if (mobileMenuToggle && sidebar) {
+        console.log('Mobile menu toggle found:', mobileMenuToggle);
+        console.log('Sidebar found:', sidebar);
+        
+        // Try multiple event types to ensure click works
+        mobileMenuToggle.addEventListener('click', function(e) {
+            console.log('Mobile menu button clicked!');
+            e.preventDefault();
+            e.stopPropagation();
+            isOpeningSidebar = true;
+            sidebar.classList.add('sidebar-open');
+            document.body.classList.add('sidebar-open');
+            console.log('Sidebar classes after click:', sidebar.className);
+            console.log('Sidebar computed style transform:', window.getComputedStyle(sidebar).transform);
+            console.log('Sidebar visibility:', window.getComputedStyle(sidebar).visibility);
+            console.log('Sidebar display:', window.getComputedStyle(sidebar).display);
+            
+            // Reset flag after a short delay
+            setTimeout(() => {
+                isOpeningSidebar = false;
+            }, 100);
+        });
+        
+        // Also try touchstart for mobile devices
+        mobileMenuToggle.addEventListener('touchstart', function(e) {
+            console.log('Mobile menu button touched!');
+            e.preventDefault();
+            e.stopPropagation();
+            isOpeningSidebar = true;
+            sidebar.classList.add('sidebar-open');
+            document.body.classList.add('sidebar-open');
+            console.log('Sidebar classes after touch:', sidebar.className);
+            
+            // Reset flag after a short delay
+            setTimeout(() => {
+                isOpeningSidebar = false;
+            }, 100);
+        });
+        
+        // Add mousedown as backup
+        mobileMenuToggle.addEventListener('mousedown', function(e) {
+            console.log('Mobile menu button mousedown!');
+            e.preventDefault();
+            e.stopPropagation();
+            isOpeningSidebar = true;
+            sidebar.classList.add('sidebar-open');
+            document.body.classList.add('sidebar-open');
+            console.log('Sidebar classes after mousedown:', sidebar.className);
+            
+            // Reset flag after a short delay
+            setTimeout(() => {
+                isOpeningSidebar = false;
+            }, 100);
+        });
+        
+        // Add visual feedback to test if button is clickable
+        mobileMenuToggle.addEventListener('mouseenter', function() {
+            console.log('Mouse entered mobile menu button');
+            this.style.background = '#5a6fd8';
+        });
+        
+        mobileMenuToggle.addEventListener('mouseleave', function() {
+            console.log('Mouse left mobile menu button');
+            this.style.background = '#667eea';
+        });
+    } else {
+        console.log('Mobile menu elements not found:', {
+            mobileMenuToggle: mobileMenuToggle,
+            sidebar: sidebar
+        });
+    }
+    
+    // Close sidebar when close button is clicked
+    if (sidebarClose && sidebar) {
+        sidebarClose.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            sidebar.classList.remove('sidebar-open');
+            document.body.classList.remove('sidebar-open');
+            console.log('Sidebar closed, mobile menu button should be visible again');
+        });
+    }
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth < 992 && !isOpeningSidebar) {
+            // Don't close if clicking on mobile menu button or its children
+            if (!sidebar.contains(e.target) && 
+                !mobileMenuToggle.contains(e.target) &&
+                !e.target.closest('.mobile-menu-toggle')) {
+                sidebar.classList.remove('sidebar-open');
+                document.body.classList.remove('sidebar-open');
+                console.log('Sidebar closed by clicking outside, mobile menu button should be visible again');
+            }
+        }
+    });
+    
+    // Close sidebar when clicking on nav links on mobile
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth < 992) {
+                sidebar.classList.remove('sidebar-open');
+                document.body.classList.remove('sidebar-open');
+                console.log('Sidebar closed by nav link click, mobile menu button should be visible again');
+            }
+        });
+    });
+    
+    // Quick add transaction
+    const saveQuickBtn = document.getElementById('saveQuickTransaction');
+    if (saveQuickBtn) {
+        saveQuickBtn.addEventListener('click', function() {
+            const crypto = document.getElementById('quickCrypto').value;
+            const type = document.getElementById('quickType').value;
+            const quantity = document.getElementById('quickQuantity').value;
+            const price = document.getElementById('quickPrice').value;
+            const fee = document.getElementById('quickFee').value;
+            const date = document.getElementById('quickDate').value;
+            const note = document.getElementById('quickNote').value;
+            
+            if (!crypto || !quantity) {
+                alert('Veuillez remplir au moins la cryptomonnaie et la quantité.');
+                return;
+            }
+            
+            // Here you would typically make an AJAX call to save the transaction
+            console.log('Saving transaction:', { crypto, type, quantity, price, fee, date, note });
+            
+            // For now, just close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('quickAddModal'));
+            modal.hide();
+            
+            // Show success message
+            showNotification('Transaction ajoutée avec succès!', 'success');
+        });
+    }
+    
+    // Theme toggle functionality
+    const headerThemeToggle = document.getElementById('header-theme-toggle');
+    console.log('Header theme toggle found:', headerThemeToggle);
+    
+    if (headerThemeToggle) {
+        // Get current theme from session or default to light
+        const currentTheme = '{{ app.session.get('theme', 'light') }}';
+        console.log('Current theme from session:', currentTheme);
+        
+        if (currentTheme === 'dark') {
+            headerThemeToggle.checked = true;
+            console.log('Set theme toggle to checked (dark mode)');
+        }
+        
+        headerThemeToggle.addEventListener('change', function() {
+            console.log('Theme toggle changed!', this.checked);
+            const newTheme = this.checked ? 'dark' : 'light';
+            console.log('New theme:', newTheme);
+            
+            fetch('{{ path('app_settings_theme', {'theme': 'THEME_PLACEHOLDER'}) }}'.replace('THEME_PLACEHOLDER', newTheme), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Theme change response:', data);
+                if (data.success) {
+                    applyTheme(newTheme);
+                    showNotification('Thème changé avec succès!', 'success');
+                }
+            })
+            .catch(error => {
+                console.error('Error changing theme:', error);
+                applyTheme(newTheme);
+            });
+        });
+        
+        // Also add click event to the label for better mobile support
+        const themeLabel = document.querySelector('.theme-toggle-header .theme-switch-label');
+        if (themeLabel) {
+            console.log('Theme label found:', themeLabel);
+            themeLabel.addEventListener('click', function(e) {
+                console.log('Theme label clicked!');
+                e.preventDefault();
+                headerThemeToggle.checked = !headerThemeToggle.checked;
+                headerThemeToggle.dispatchEvent(new Event('change'));
+            });
+        }
+    } else {
+        console.log('Header theme toggle NOT found!');
+    }
+    
+    // Apply theme function
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        
+        // Update all theme toggles
+        const allToggles = document.querySelectorAll('.theme-switch');
+        allToggles.forEach(toggle => {
+            toggle.checked = theme === 'dark';
+        });
+        
+        // Force CSS update
+        document.body.style.display = 'none';
+        document.body.offsetHeight; // Trigger reflow
+        document.body.style.display = '';
+        
+        console.log('Theme applied:', theme);
+    }
+    
+    // Initialize theme on page load
+    const savedTheme = localStorage.getItem('theme') || '{{ app.session.get('theme', 'light') }}';
+    console.log('Initializing theme:', savedTheme);
+    applyTheme(savedTheme);
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type === 'success' ? 'success' : 'info'}-modern alert-modern notification`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+            ${message}
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}
+

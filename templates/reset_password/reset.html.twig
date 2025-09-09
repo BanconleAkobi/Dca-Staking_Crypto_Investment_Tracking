@@ -1,0 +1,293 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau mot de passe - DCA Tracker{% endblock %}
+
+{% block main_class %}auth-main{% endblock %}
+
+{% block body %}
+<div class="auth-container">
+    <div class="row g-0 w-100">
+        <!-- Hero Section with Image -->
+        <div class="col-lg-6 d-none d-lg-block">
+            <div class="auth-hero">
+                <div class="auth-hero-content">
+                    <h1>Nouveau mot de passe</h1>
+                    <p>Vous êtes presque arrivé ! Choisissez un nouveau mot de passe sécurisé pour accéder à votre compte DCA Tracker.</p>
+                    
+                    <!-- Placeholder for DALL-E generated image -->
+                    <div class="hero-image-placeholder">
+                        <div class="placeholder-content">
+                            <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                            <p class="mb-0">Votre mot de passe est en train de changer</p>
+                            <small class="text-muted">Secure password creation visualization</small>
+                        </div>
+                        <img src="/images/crypto-new-password.jpg" alt="Secure Password Creation" class="hero-image"> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- New Password Form Section -->
+        <div class="col-lg-6">
+            <div class="d-flex align-items-center justify-content-center min-vh-100 p-4">
+                <div class="auth-card">
+                    <div class="auth-card-header">
+                        <h1>Créer un nouveau mot de passe</h1>
+                        <p>Choisissez un mot de passe fort et sécurisé</p>
+                    </div>
+                    
+                    <div class="auth-card-body">
+                        {{ form_start(resetForm, { 
+                            attr: { 
+                                class: 'auth-form'
+                            },
+                            'render_rest': false
+                        }) }}
+                        
+                        {% if resetForm.vars.errors|length > 0 %}
+                            <div class="alert alert-danger-modern alert-modern">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ form_errors(resetForm) }}
+                            </div>
+                        {% endif %}
+                        
+                        {# Debug: Show all form errors #}
+                        {% if resetForm.plainPassword.vars.errors|length > 0 %}
+                            <div class="alert alert-warning-modern alert-modern">
+                                <i class="fas fa-bug me-2"></i>
+                                <strong>Debug - Password Field Errors:</strong><br>
+                                {{ form_errors(resetForm.plainPassword) }}
+                            </div>
+                        {% endif %}
+
+                        <!-- New Password Field with Strength Indicator -->
+                        <div class="form-group">
+                            {{ form_label(resetForm.plainPassword.first, 'Nouveau mot de passe', { 
+                                label_attr: { class: 'form-label' } 
+                            }) }}
+                            <div class="input-group">
+                                {{ form_widget(resetForm.plainPassword.first, {
+                                    attr: { 
+                                        class: 'form-control', 
+                                        autocomplete: 'new-password',
+                                        minlength: 12,
+                                        placeholder: 'Minimum 12 caractères'
+                                    }
+                                }) }}
+                                <button class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="toggleNewPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Password Strength Indicator -->
+                            <div class="password-strength mt-2">
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>Force du mot de passe</span>
+                                    <span id="strength-text">Faible</span>
+                                </div>
+                                <div class="progress" style="height: 4px;">
+                                    <div class="progress-bar" 
+                                         id="pwdStrength" 
+                                         role="progressbar" 
+                                         style="width: 0%"
+                                         aria-valuenow="0" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>
+                                12+ caractères, idéalement avec majuscules, chiffres et symboles.
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="form-group">
+                            {{ form_label(resetForm.plainPassword.second, 'Confirmer le mot de passe', { 
+                                label_attr: { class: 'form-label' } 
+                            }) }}
+                            <div class="input-group">
+                                {{ form_widget(resetForm.plainPassword.second, {
+                                    attr: { 
+                                        class: 'form-control', 
+                                        autocomplete: 'new-password',
+                                        minlength: 12,
+                                        placeholder: 'Répétez le mot de passe'
+                                    }
+                                }) }}
+                                <button class="btn btn-outline-secondary" 
+                                        type="button" 
+                                        id="toggleConfirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {% if resetForm.plainPassword.vars.errors|length > 0 %}
+                            <div class="alert alert-danger-modern alert-modern mt-2">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                {{ form_errors(resetForm.plainPassword) }}
+                            </div>
+                        {% endif %}
+
+                        <div class="alert alert-success-modern alert-modern">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>Conseils pour un mot de passe sécurisé :</strong><br>
+                            • Utilisez au moins 12 caractères<br>
+                            • Mélangez majuscules, minuscules, chiffres et symboles<br>
+                            • Évitez les informations personnelles<br>
+                            • Les deux champs de mot de passe doivent être identiques
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-modern btn-modern w-100 mb-3">
+                            <i class="fas fa-save me-2"></i>
+                            Sauvegarder le nouveau mot de passe
+                        </button>
+                        
+                        {# Manually render the CSRF token #}
+                        {{ form_widget(resetForm._token) }}
+                        
+                        {{ form_end(resetForm, {'render_rest': false}) }}
+                        
+                        <div class="text-center">
+                            <a href="{{ path('app_login') }}" class="auth-link">
+                                <i class="fas fa-arrow-left me-1"></i>
+                                Retour à la connexion
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Password reset page loaded');
+    
+    // Find password inputs - use the actual IDs generated by Symfony
+    const pwd = document.getElementById('change_password_form_plainPassword_first');
+    const confirmPwd = document.getElementById('change_password_form_plainPassword_second');
+    
+    const bar = document.getElementById('pwdStrength');
+    const strengthText = document.getElementById('strength-text');
+    const btn = document.getElementById('toggleNewPassword');
+    const confirmBtn = document.getElementById('toggleConfirmPassword');
+    
+    console.log('Password input found:', pwd);
+    console.log('Password input name:', pwd ? pwd.name : 'not found');
+    console.log('Password input id:', pwd ? pwd.id : 'not found');
+    console.log('Strength bar found:', bar);
+    console.log('Strength text found:', strengthText);
+    console.log('Toggle button found:', btn);
+    
+    // List all password inputs for debugging
+    const allPasswordInputs = document.querySelectorAll('input[type="password"]');
+    console.log('All password inputs found:', allPasswordInputs);
+    
+    if (!pwd || !bar || !strengthText) {
+        console.error('Required elements not found for password strength indicator');
+        console.error('Available elements:', {
+            passwordInput: pwd,
+            strengthBar: bar,
+            strengthText: strengthText,
+            toggleButton: btn
+        });
+        return;
+    }
+
+    // Password strength calculation (updated for 12 char minimum)
+    function calculateStrength(password) {
+        let score = 0;
+        if (!password) return { score: 0, text: 'Faible', color: 'bg-danger' };
+        
+        if (password.length >= 12) score++;
+        if (password.length >= 16) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+        
+        if (score <= 2) return { score: (score/6)*100, text: 'Faible', color: 'bg-danger' };
+        if (score <= 4) return { score: (score/6)*100, text: 'Moyen', color: 'bg-warning' };
+        if (score <= 5) return { score: (score/6)*100, text: 'Bon', color: 'bg-info' };
+        return { score: (score/6)*100, text: 'Très fort', color: 'bg-success' };
+    }
+
+    function updateStrength() {
+        const result = calculateStrength(pwd.value);
+        bar.style.width = result.score + '%';
+        bar.className = 'progress-bar ' + result.color;
+        strengthText.textContent = result.text;
+        console.log('Password strength updated:', result);
+    }
+
+    // Add event listener with error handling
+    if (pwd) {
+        pwd.addEventListener('input', function(e) {
+            console.log('Password input changed:', e.target.value);
+            updateStrength();
+        });
+        pwd.addEventListener('keyup', updateStrength);
+        pwd.addEventListener('paste', function() {
+            setTimeout(updateStrength, 100); // Wait for paste to complete
+        });
+        updateStrength(); // Initial update
+    }
+
+    // Toggle password visibility for new password
+    if (btn && pwd) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isPwd = pwd.getAttribute('type') === 'password';
+            pwd.setAttribute('type', isPwd ? 'text' : 'password');
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+                console.log('Password visibility toggled:', isPwd ? 'visible' : 'hidden');
+            }
+        });
+    } else {
+        console.error('Toggle button or password input not found for visibility toggle');
+    }
+    
+    // Toggle password visibility for confirm password
+    if (confirmBtn && confirmPwd) {
+        confirmBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isPwd = confirmPwd.getAttribute('type') === 'password';
+            confirmPwd.setAttribute('type', isPwd ? 'text' : 'password');
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-eye');
+                icon.classList.toggle('fa-eye-slash');
+                console.log('Confirm password visibility toggled:', isPwd ? 'visible' : 'hidden');
+            }
+        });
+    }
+    
+    // Form submission with loading state
+    const form = document.querySelector('.auth-form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitted');
+            console.log('Form data:', new FormData(this));
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<span class="loading-spinner me-2"></span>Sauvegarde...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

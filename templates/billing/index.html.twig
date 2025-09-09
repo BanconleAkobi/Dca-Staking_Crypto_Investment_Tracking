@@ -1,0 +1,251 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}Facturation - DCA Tracker{% endblock %}
+
+{% block page_title %}Facturation{% endblock %}
+{% block page_subtitle %}Gérez votre abonnement et vos factures{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Current Plan Status -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-crown me-2"></i>Plan Actuel
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="mb-1">{{ plans[current_plan].name }}</h3>
+                            <p class="text-muted mb-0">
+                                {% if subscription and subscription.isActive() %}
+                                    {% if subscription.isTrialing() %}
+                                        <span class="badge bg-warning">Essai gratuit</span>
+                                        - Se termine le {{ subscription.trialEndsAt|date('d/m/Y') }}
+                                    {% else %}
+                                        <span class="badge bg-success">Actif</span>
+                                        - Renouvelé le {{ subscription.currentPeriodEnd|date('d/m/Y') }}
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">Gratuit</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if subscription and subscription.stripeCustomerId %}
+                                <a href="{{ path('app_billing_portal') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-cog me-2"></i>Gérer l'abonnement
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Plans -->
+            <div class="row">
+                {% for planKey, plan in plans %}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card pricing-card h-100 {% if current_plan == planKey %}border-primary{% endif %}">
+                            {% if current_plan == planKey %}
+                                <div class="card-header bg-primary text-white text-center">
+                                    <span class="badge bg-light text-primary">Plan Actuel</span>
+                                </div>
+                            {% endif %}
+                            <div class="card-body text-center">
+                                <h4 class="card-title">{{ plan.name }}</h4>
+                                <div class="pricing-price">
+                                    {% if plan.price == 0 %}
+                                        <span class="price-amount">Gratuit</span>
+                                    {% else %}
+                                        <span class="price-currency">€</span>
+                                        <span class="price-amount">{{ plan.price }}</span>
+                                        <span class="price-period">/mois</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <ul class="pricing-features list-unstyled">
+                                    {% for feature in plan.features %}
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>{{ feature }}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="card-footer text-center">
+                                {% if current_plan == planKey %}
+                                    <button class="btn btn-primary" disabled>
+                                        <i class="fas fa-check me-2"></i>Plan Actuel
+                                    </button>
+                                {% elseif planKey == 'free' %}
+                                    <button class="btn btn-outline-secondary" disabled>
+                                        Plan Gratuit
+                                    </button>
+                                {% else %}
+                                    <a href="{{ path('app_billing_subscribe', {'plan': planKey}) }}" 
+                                       class="btn btn-primary">
+                                        <i class="fas fa-credit-card me-2"></i>S'abonner
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Usage Statistics -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-chart-bar me-2"></i>Utilisation Actuelle
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="usage-stat">
+                                        <div class="usage-label">Cryptomonnaies</div>
+                                        <div class="usage-value">
+                                            {{ app.user.cryptos|length }} / 
+                                            {% if plans[current_plan].limits.max_cryptos == -1 %}
+                                                ∞
+                                            {% else %}
+                                                {{ plans[current_plan].limits.max_cryptos }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="usage-bar">
+                                            <div class="usage-progress" 
+                                                 style="width: {% if plans[current_plan].limits.max_cryptos == -1 %}0{% else %}{{ (app.user.cryptos|length / plans[current_plan].limits.max_cryptos * 100)|round }}{% endif %}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="usage-stat">
+                                        <div class="usage-label">Transactions</div>
+                                        <div class="usage-value">
+                                            {{ app.user.transactions|length }} / 
+                                            {% if plans[current_plan].limits.max_transactions == -1 %}
+                                                ∞
+                                            {% else %}
+                                                {{ plans[current_plan].limits.max_transactions }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="usage-bar">
+                                            <div class="usage-progress" 
+                                                 style="width: {% if plans[current_plan].limits.max_transactions == -1 %}0{% else %}{{ (app.user.transactions|length / plans[current_plan].limits.max_transactions * 100)|round }}{% endif %}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="usage-stat">
+                                        <div class="usage-label">Rapports PDF</div>
+                                        <div class="usage-value">
+                                            {% if plans[current_plan].limits.pdf_reports %}
+                                                <i class="fas fa-check text-success"></i> Disponible
+                                            {% else %}
+                                                <i class="fas fa-times text-danger"></i> Non disponible
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 col-sm-6 mb-3">
+                                    <div class="usage-stat">
+                                        <div class="usage-label">Support</div>
+                                        <div class="usage-value">
+                                            {% if current_plan == 'enterprise' %}
+                                                <i class="fas fa-star text-warning"></i> Dédié
+                                            {% elseif current_plan == 'pro' %}
+                                                <i class="fas fa-headset text-info"></i> Prioritaire
+                                            {% else %}
+                                                <i class="fas fa-envelope text-secondary"></i> Email
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.pricing-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid #e9ecef;
+}
+
+.pricing-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.pricing-card.border-primary {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.pricing-price {
+    margin: 20px 0;
+}
+
+.price-amount {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.price-currency {
+    font-size: 1.5rem;
+    color: #667eea;
+    vertical-align: top;
+}
+
+.price-period {
+    font-size: 1rem;
+    color: #6c757d;
+}
+
+.pricing-features {
+    text-align: left;
+    margin: 20px 0;
+}
+
+.usage-stat {
+    text-align: center;
+}
+
+.usage-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.usage-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.usage-bar {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.usage-progress {
+    height: 100%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    transition: width 0.3s ease;
+}
+</style>
+{% endblock %}

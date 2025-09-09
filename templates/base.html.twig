@@ -1,30 +1,104 @@
 <!doctype html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}DCA Tracker{% endblock %}</title>
+    <title>{% block title %}DCA Tracker - Suivi de vos investissements crypto{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Suivez vos investissements crypto avec DCA Tracker. Interface moderne et intuitive pour gérer votre portefeuille.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="/styles/app.css" rel="stylesheet">
+    {% block stylesheets %}{% endblock %}
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-light bg-white border-bottom">
-    <div class="container">
-        <a class="navbar-brand" href="{{ path('app_dashboard') }}">DCA Tracker</a>
-        <div>
-            {% if app.user %}
-                <span class="me-3">{{ app.user.pseudo }}</span>
-                <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_logout') }}">Déconnexion</a>
-            {% else %}
-                <a class="btn btn-primary btn-sm" href="{{ path('app_login') }}">Connexion</a>
-            {% endif %}
+<body>
+    <!-- Modern Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-modern fixed-top {% if app.request.get('_route') starts with 'app_dashboard' or app.request.get('_route') starts with 'app_crypto' or app.request.get('_route') starts with 'app_transaction' or app.request.get('_route') starts with 'app_analytics' or app.request.get('_route') starts with 'app_settings' %}d-none{% endif %}">
+        <div class="container">
+            <a class="navbar-brand" href="{{ path('app_dashboard') }}">
+                <i class="fas fa-chart-line me-2"></i>DCA Tracker
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    {% if app.user %}
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                                <div class="user-avatar me-2">
+                                    <i class="fas fa-user-circle"></i>
+                                </div>
+                                <span>{{ app.user.pseudo }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                </a></li>
+                                {# TODO: Add transaction routes when available #}
+                                {# <li><a class="dropdown-item" href="{{ path('app_transaction_index') }}">
+                                    <i class="fas fa-exchange-alt me-2"></i>Transactions
+                                </a></li> #}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ path('app_logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Déconnexion
+                                </a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a class="btn btn-primary-modern btn-modern me-2" href="{{ path('app_login') }}">
+                            <i class="fas fa-sign-in-alt me-2"></i>Connexion
+                        </a>
+                        <a class="btn btn-secondary-modern btn-modern" href="{{ path('app_register') }}">
+                            <i class="fas fa-user-plus me-2"></i>S'inscrire
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<main class="container py-4">{% block body %}{% endblock %}</main>
+    <!-- Main Content -->
+    <main class="{% block main_class %}{% if app.user %}main-content{% else %}auth-main{% endif %}{% endblock %}">
+        {% block body %}{% endblock %}
+    </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-{% block javascripts %}{% endblock %}
+    <!-- Footer -->
+    <footer class="footer-modern mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; {{ "now"|date("Y") }} DCA Tracker. Tous droits réservés.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Fait avec <i class="fas fa-heart text-danger"></i> pour les investisseurs crypto</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous"></script>
+    
+    {% block javascripts %}{% endblock %}
 </body>
 </html>

@@ -21,6 +21,10 @@ class Crypto
     #[ORM\Column(length: 255)]
     private ?string $symbol = null;
 
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'cryptos')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     /**
      * @var Collection<int, Transaction>
      */
@@ -87,6 +91,18 @@ class Crypto
                 $transaction->setCrypto(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

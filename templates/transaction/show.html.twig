@@ -1,0 +1,146 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Détails de la transaction{% endblock %}
+{% block page_subtitle %}Informations complètes de cette opération{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-info-circle"></i>
+                    Détails de la transaction
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-2"></i>
+                        Modifier
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Cryptomonnaie</label>
+                            <div class="info-value">
+                                <div class="d-flex align-items-center">
+                                    <div class="crypto-symbol me-2">{{ transaction.crypto.symbol }}</div>
+                                    <div class="crypto-name">{{ transaction.crypto.name }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Type d'opération</label>
+                            <div class="info-value">
+                                {% if transaction.type == 'BUY' %}
+                                    <span class="status-badge buy">Achat</span>
+                                {% elseif transaction.type == 'STAKE_REWARD' %}
+                                    <span class="status-badge stake">Récompense de staking</span>
+                                {% else %}
+                                    <span class="status-badge neutral">{{ transaction.type }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Date</label>
+                            <div class="info-value">
+                                <div class="transaction-date">
+                                    <div class="date-main">{{ transaction.date|date('d/m/Y') }}</div>
+                                    <div class="date-time">{{ transaction.date|date('H:i') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Quantité</label>
+                            <div class="info-value">
+                                <span class="transaction-quantity">{{ transaction.quantity }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if transaction.unitPriceUsd %}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Prix unitaire (USD)</label>
+                            <div class="info-value">
+                                <span class="transaction-price">${{ transaction.unitPriceUsd|number_format(2, '.', ' ') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Frais (USD)</label>
+                            <div class="info-value">
+                                {% if transaction.feeUsd %}
+                                    <span class="transaction-fee">${{ transaction.feeUsd|number_format(2, '.', ' ') }}</span>
+                                {% else %}
+                                    <span class="text-muted">Aucun</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Montant total (USD)</label>
+                            <div class="info-value">
+                                {% set totalAmount = (transaction.unitPriceUsd * transaction.quantity) + (transaction.feeUsd ?? 0) %}
+                                <span class="transaction-total">${{ totalAmount|number_format(2, '.', ' ') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <label class="info-label">Montant net (USD)</label>
+                            <div class="info-value">
+                                {% set netAmount = transaction.unitPriceUsd * transaction.quantity %}
+                                <span class="transaction-net">${{ netAmount|number_format(2, '.', ' ') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if transaction.note %}
+                <div class="row">
+                    <div class="col-12">
+                        <div class="info-group">
+                            <label class="info-label">Note</label>
+                            <div class="info-value">
+                                <div class="transaction-note-full">{{ transaction.note }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="form-actions mt-4">
+                    <a href="{{ path('app_transaction_index') }}" class="btn btn-secondary-modern btn-modern">
+                        <i class="fas fa-arrow-left me-2"></i>
+                        Retour à la liste
+                    </a>
+                    <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}" class="btn btn-primary-modern btn-modern">
+                        <i class="fas fa-edit me-2"></i>
+                        Modifier
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
