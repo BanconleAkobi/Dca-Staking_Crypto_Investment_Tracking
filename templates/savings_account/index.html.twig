@@ -1,0 +1,281 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Épargne{% endblock %}
+{% block page_subtitle %}Gérez vos comptes d'épargne et livrets français{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Mes Comptes d'Épargne</h2>
+        <p class="text-muted mb-0">Suivez vos livrets et comptes d'épargne français</p>
+    </div>
+    <a href="{{ path('app_savings_account_new') }}" class="btn btn-primary-modern btn-modern">
+        <i class="fas fa-plus me-2"></i>
+        Ajouter un compte
+    </a>
+</div>
+
+{% if savingsAccounts|length > 0 %}
+    <!-- Stats Overview -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Total des comptes</div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-piggy-bank"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ totalAccounts }}</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-info-circle"></i>
+                Tous types confondus
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Solde total</div>
+                <div class="stat-icon success">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ totalBalance|number_format(0, '.', ' ') }}€</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-wallet"></i>
+                Tous comptes
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Intérêts annuels</div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-percentage"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ totalAnnualInterest|number_format(0, '.', ' ') }}€</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-chart-line"></i>
+                Estimation
+            </div>
+        </div>
+    </div>
+
+    <!-- Regulated Accounts -->
+    {% if regulatedAccounts|length > 0 %}
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-shield-alt me-2"></i>
+                Épargne réglementée
+                <span class="badge bg-success ms-2">{{ regulatedAccounts|length }}</span>
+            </h3>
+            <div class="card-actions">
+                <a href="{{ path('app_savings_account_regulated') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-eye me-1"></i>
+                    Voir tout
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for account in regulatedAccounts|slice(0, 3) %}
+                    <div class="col-md-4 mb-3">
+                        <div class="savings-card regulated">
+                            <div class="savings-header">
+                                <div class="savings-info">
+                                    <div class="savings-type">{{ get_savings_account_type_label(account.type) }}</div>
+                                    <div class="savings-name">{{ account.name }}</div>
+                                </div>
+                                <div class="savings-status">
+                                    {% if account.isActive %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="savings-details">
+                                {% if account.currentBalance %}
+                                    <div class="savings-balance">{{ account.currentBalance|number_format(0, '.', ' ') }}€</div>
+                                {% endif %}
+                                {% if account.annualRate %}
+                                    <div class="savings-rate">{{ account.annualRate }}% / an</div>
+                                {% endif %}
+                                {% if account.maxAmount %}
+                                    <div class="savings-limit">Plafond: {{ account.maxAmount|number_format(0, '.', ' ') }}€</div>
+                                {% endif %}
+                            </div>
+                            <div class="savings-actions">
+                                <a href="{{ path('app_savings_account_show', {'id': account.id}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ path('app_savings_account_edit', {'id': account.id}) }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Term Accounts -->
+    {% if termAccounts|length > 0 %}
+    <div class="content-card mb-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Épargne à terme
+                <span class="badge bg-info ms-2">{{ termAccounts|length }}</span>
+            </h3>
+            <div class="card-actions">
+                <a href="{{ path('app_savings_account_term') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-eye me-1"></i>
+                    Voir tout
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for account in termAccounts|slice(0, 3) %}
+                    <div class="col-md-4 mb-3">
+                        <div class="savings-card term">
+                            <div class="savings-header">
+                                <div class="savings-info">
+                                    <div class="savings-type">{{ get_savings_account_type_label(account.type) }}</div>
+                                    <div class="savings-name">{{ account.name }}</div>
+                                </div>
+                                <div class="savings-status">
+                                    {% if account.isActive %}
+                                        <span class="badge bg-success">Actif</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactif</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="savings-details">
+                                {% if account.currentBalance %}
+                                    <div class="savings-balance">{{ account.currentBalance|number_format(0, '.', ' ') }}€</div>
+                                {% endif %}
+                                {% if account.annualRate %}
+                                    <div class="savings-rate">{{ account.annualRate }}% / an</div>
+                                {% endif %}
+                                {% if account.maturityDate %}
+                                    <div class="savings-maturity">Échéance: {{ account.maturityDate|date('d/m/Y') }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="savings-actions">
+                                <a href="{{ path('app_savings_account_show', {'id': account.id}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ path('app_savings_account_edit', {'id': account.id}) }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+{% else %}
+    <div class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-piggy-bank fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">Aucun compte d'épargne</h3>
+            <p class="text-muted mb-4">Commencez par ajouter vos premiers comptes d'épargne.</p>
+            <a href="{{ path('app_savings_account_new') }}" class="btn btn-primary-modern btn-modern">
+                <i class="fas fa-plus me-2"></i>
+                Ajouter mon premier compte
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+.savings-card {
+    background: var(--white);
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    height: 100%;
+    position: relative;
+}
+
+.savings-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.savings-card.regulated {
+    border-left: 4px solid #28a745;
+}
+
+.savings-card.term {
+    border-left: 4px solid #17a2b8;
+}
+
+.savings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.savings-info {
+    flex: 1;
+}
+
+.savings-type {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.savings-name {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+}
+
+.savings-details {
+    margin-bottom: 1rem;
+}
+
+.savings-balance {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.savings-rate {
+    font-size: 0.9rem;
+    color: #28a745;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.savings-limit,
+.savings-maturity {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.savings-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.savings-actions .btn {
+    flex: 1;
+}
+</style>
+{% endblock %}

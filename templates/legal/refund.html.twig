@@ -1,0 +1,197 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}{{ page_subtitle }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-credit-card me-2"></i>
+                    Politique de Remboursement
+                </h3>
+                <div class="card-actions">
+                    <small class="text-muted">Dernière mise à jour : {{ "now"|date('d/m/Y') }}</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="legal-content">
+                    <div class="alert alert-warning" role="alert">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Politique stricte</h5>
+                        <p class="mb-0">Les abonnements FolioZen ne sont <strong>PAS remboursables</strong> une fois le paiement effectué.</p>
+                    </div>
+
+                    <h4>🚫 Pas de remboursement</h4>
+                    <p>En souscrivant à un abonnement FolioZen, vous acceptez que :</p>
+                    <ul>
+                        <li><strong>Aucun remboursement</strong> ne sera accordé après le paiement</li>
+                        <li>Les abonnements sont <strong>non remboursables</strong> par nature</li>
+                        <li>Le service est <strong>immédiatement accessible</strong> après paiement</li>
+                        <li>Vous bénéficiez de l'<strong>accès complet</strong> aux fonctionnalités payantes</li>
+                    </ul>
+
+                    <h4>💳 Paiements et facturation</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6><i class="fas fa-calendar-alt text-primary me-2"></i>Facturation mensuelle</h6>
+                                <p>Les abonnements sont facturés mensuellement et renouvelés automatiquement.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-card">
+                                <h6><i class="fas fa-credit-card text-success me-2"></i>Paiement sécurisé</h6>
+                                <p>Les paiements sont traités par Stripe, leader mondial des paiements en ligne.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>⏰ Annulation d'abonnement</h4>
+                    <p>Vous pouvez annuler votre abonnement à tout moment :</p>
+                    <ul>
+                        <li>L'annulation prend effet à la fin de la période de facturation en cours</li>
+                        <li>Vous conservez l'accès aux fonctionnalités payantes jusqu'à la fin de la période</li>
+                        <li>Aucun remboursement n'est accordé pour la période restante</li>
+                        <li>Votre compte passe automatiquement au plan gratuit</li>
+                    </ul>
+
+                    <h4>🔄 Changement de plan</h4>
+            <p>Vous pouvez changer de plan à tout moment :</p>
+            <ul>
+                <li><strong>Upgrade :</strong> Le nouveau plan prend effet immédiatement, prorata temporis</li>
+                <li><strong>Downgrade :</strong> Le changement prend effet à la prochaine facturation</li>
+                <li>Les différences de prix sont calculées au prorata</li>
+            </ul>
+
+            <h4>⚠️ Exceptions exceptionnelles</h4>
+            <div class="alert alert-info" role="alert">
+                <h6><i class="fas fa-info-circle me-2"></i>Cas très exceptionnels</h6>
+                <p class="mb-0">Dans des cas très exceptionnels (erreur technique majeure, fraude), nous nous réservons le droit d'accorder un remboursement à notre seule discrétion.</p>
+            </div>
+
+            <h4>📞 Contact pour les questions</h4>
+            <p>Pour toute question concernant la facturation :</p>
+            <ul>
+                        <li>Email : billing@foliozen.fr</li>
+                        <li>Support technique : support@foliozen.fr</li>
+                <li>Consultez notre <a href="{{ path('app_legal_contact') }}">page de contact</a></li>
+            </ul>
+
+            <h4>🔒 Sécurité des paiements</h4>
+            <p>Vos informations de paiement sont protégées :</p>
+            <ul>
+                <li>Chiffrement SSL/TLS pour toutes les transactions</li>
+                <li>Conformité PCI DSS via Stripe</li>
+                <li>Aucune donnée de carte bancaire stockée sur nos serveurs</li>
+                <li>Surveillance 24/7 des transactions</li>
+            </ul>
+
+            <h4>📋 Résumé des conditions</h4>
+            <div class="summary-box">
+                <h6><i class="fas fa-clipboard-list me-2"></i>Récapitulatif</h6>
+                <ul class="mb-0">
+                    <li>✅ Annulation possible à tout moment</li>
+                    <li>❌ Aucun remboursement après paiement</li>
+                    <li>✅ Changement de plan possible</li>
+                    <li>✅ Paiements sécurisés via Stripe</li>
+                    <li>❌ Pas de période d'essai gratuite</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-success" role="alert">
+                <h6><i class="fas fa-check-circle me-2"></i>Acceptation</h6>
+                <p class="mb-0">En souscrivant à un abonnement, vous acceptez pleinement cette politique de remboursement.</p>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<style>
+.legal-content {
+    line-height: 1.6;
+}
+
+.legal-content h4 {
+    color: #667eea;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.legal-content h4:first-child {
+    margin-top: 0;
+}
+
+.legal-content ul {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.legal-content p {
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+.legal-content a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.legal-content a:hover {
+    text-decoration: underline;
+}
+
+.info-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    height: 100%;
+}
+
+.info-card h6 {
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.info-card p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.summary-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+.summary-box h6 {
+    color: white;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.summary-box ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.summary-box li {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

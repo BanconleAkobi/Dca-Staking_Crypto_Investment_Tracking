@@ -1,0 +1,165 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Modifier {{ asset.name }}{% endblock %}
+{% block page_subtitle %}{{ asset.getTypeLabel() }} - {{ asset.symbol }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-edit me-2"></i>
+                    Modifier l'actif
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_asset_show', {'id': asset.id}) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-eye me-1"></i>
+                        Voir
+                    </a>
+                    <a href="{{ path('app_asset_index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Retour
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'modern-form', 'novalidate': 'novalidate'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.symbol, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.symbol, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.symbol) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.type, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.type, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.type) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.category, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.category, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.category) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ form_label(form.currency, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.currency, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.currency) }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ form_label(form.currentPrice, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.currentPrice, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.currentPrice) }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ form_label(form.exchange, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.exchange, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.exchange) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.isin, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.isin, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.isin) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-check">
+                                {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input modern-checkbox'}}) }}
+                                {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                            {{ form_errors(form.isActive) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control modern-textarea'}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('app_asset_show', {'id': asset.id}) }}" class="btn btn-secondary-modern btn-modern">
+                        <i class="fas fa-times me-2"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary-modern btn-modern">
+                        <i class="fas fa-save me-2"></i>
+                        Sauvegarder
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-uppercase symbol field
+    const symbolField = document.querySelector('input[name="asset[symbol]"]');
+    if (symbolField) {
+        symbolField.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+
+    // Show/hide fields based on asset type
+    const typeField = document.querySelector('select[name="asset[type]"]');
+    const isinField = document.querySelector('input[name="asset[isin]"]');
+    const exchangeField = document.querySelector('input[name="asset[exchange]"]');
+
+    function updateFieldsVisibility() {
+        const selectedType = typeField.value;
+        
+        // Show/hide ISIN field for stocks and ETFs
+        if (selectedType === 'stock' || selectedType === 'etf') {
+            isinField.closest('.form-group').style.display = 'block';
+            exchangeField.closest('.form-group').style.display = 'block';
+        } else {
+            isinField.closest('.form-group').style.display = 'none';
+            exchangeField.closest('.form-group').style.display = 'none';
+        }
+    }
+
+    if (typeField) {
+        typeField.addEventListener('change', updateFieldsVisibility);
+        updateFieldsVisibility(); // Initial call
+    }
+});
+</script>
+{% endblock %}

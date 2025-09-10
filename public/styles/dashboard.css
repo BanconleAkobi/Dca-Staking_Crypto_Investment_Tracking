@@ -29,6 +29,7 @@
     z-index: 1000;
     transition: var(--transition);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    padding-left: 1rem; /* Ajout d'espacement à gauche */
 }
 
 .sidebar-header {

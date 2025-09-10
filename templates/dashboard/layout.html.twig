@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Tableau de bord - DCA Tracker{% endblock %}
+{% block title %}Tableau de bord - FolioZen{% endblock %}
 
 {% block main_class %}dashboard-layout{% endblock %}
 
@@ -13,7 +13,7 @@
         <div class="sidebar-header">
             <div class="sidebar-brand">
                 <i class="fas fa-chart-line"></i>
-                <span>DCA Tracker</span>
+                <span>FolioZen</span>
             </div>
             <button class="sidebar-close d-lg-none" id="sidebarClose">
                 <i class="fas fa-times"></i>
@@ -28,30 +28,88 @@
                         <span>Tableau de bord</span>
                     </a>
                 </li>
+                
+                <!-- Section Investissements -->
+                <li class="nav-section">
+                    <div class="nav-section-title">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Investissements</span>
+                    </div>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_asset_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_asset' ? 'active' : '' }}">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Actifs</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_savings_account_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_savings_account' ? 'active' : '' }}">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Épargne</span>
+                    </a>
+                </li>
+                
                 <li class="nav-item">
                     <a href="{{ path('app_crypto_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_crypto' ? 'active' : '' }}">
                         <i class="fas fa-coins"></i>
                         <span>Cryptomonnaies</span>
                     </a>
                 </li>
+                
+                <!-- Section Transactions -->
+                <li class="nav-section">
+                    <div class="nav-section-title">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>Transactions</span>
+                    </div>
+                </li>
+                
                 <li class="nav-item">
                     <a href="{{ path('app_transaction_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_transaction' ? 'active' : '' }}">
                         <i class="fas fa-exchange-alt"></i>
                         <span>Transactions</span>
                     </a>
                 </li>
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_withdrawal_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_withdrawal' ? 'active' : '' }}">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Retraits</span>
+                    </a>
+                </li>
+                
+                <!-- Section Analyses -->
+                <li class="nav-section">
+                    <div class="nav-section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analyses</span>
+                    </div>
+                </li>
+                
                 <li class="nav-item">
                     <a href="{{ path('app_analytics_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_analytics' ? 'active' : '' }}">
                         <i class="fas fa-chart-pie"></i>
                         <span>Analyses</span>
                     </a>
                 </li>
+                
+                <!-- Section Compte -->
+                <li class="nav-section">
+                    <div class="nav-section-title">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Compte</span>
+                    </div>
+                </li>
+                
                 <li class="nav-item">
                     <a href="{{ path('app_billing_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_billing' ? 'active' : '' }}">
                         <i class="fas fa-credit-card"></i>
                         <span>Facturation</span>
                     </a>
                 </li>
+                
                 <li class="nav-item">
                     <a href="{{ path('app_settings_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_settings' ? 'active' : '' }}">
                         <i class="fas fa-cog"></i>
@@ -81,8 +139,8 @@
                 <button class="mobile-menu-toggle d-lg-none me-3" id="mobileMenuToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <h1 class="page-title">{% block page_title %}Tableau de bord{% endblock %}</h1>
-                <p class="page-subtitle">{% block page_subtitle %}Gérez vos investissements crypto{% endblock %}</p>
+                <h1 class="page-title">{% block page_title %}FolioZen - Tableau de bord{% endblock %}</h1>
+                <p class="page-subtitle">{% block page_subtitle %}Gérez tous vos investissements{% endblock %}</p>
             </div>
             <div class="header-right">
                 <div class="header-actions">
@@ -457,5 +515,89 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<!-- Footer with Legal Links -->
+<footer class="main-footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="footer-brand">
+                    <h6><i class="fas fa-chart-line me-2"></i>FolioZen</h6>
+                    <p class="text-muted small">Plateforme de gestion d'investissements</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="footer-links">
+                    <a href="{{ path('app_legal_terms') }}" class="footer-link">CGU</a>
+                    <a href="{{ path('app_legal_privacy') }}" class="footer-link">Confidentialité</a>
+                    <a href="{{ path('app_legal_disclaimer') }}" class="footer-link">Avertissement</a>
+                    <a href="{{ path('app_legal_refund') }}" class="footer-link">Remboursement</a>
+                    <a href="{{ path('app_legal_contact') }}" class="footer-link">Contact</a>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="footer-bottom">
+                    <p class="text-muted small mb-0">
+                        © {{ "now"|date('Y') }} FolioZen. Tous droits réservés. 
+                        <span class="ms-2">CEO: [Votre Nom]</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+.main-footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    padding: 2rem 0 1rem;
+    margin-top: 3rem;
+}
+
+.footer-brand h6 {
+    color: var(--text-dark);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: flex-end;
+}
+
+.footer-link {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.footer-bottom {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .footer-links {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .footer-brand {
+        text-align: center;
+    }
+}
+</style>
 {% endblock %}
 

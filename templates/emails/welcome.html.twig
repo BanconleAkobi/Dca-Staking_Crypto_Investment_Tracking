@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue sur FolioZen</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .welcome-title {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+        .plan-badge {
+            background: #28a745;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        .features {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px 0;
+        }
+        .feature-icon {
+            color: #28a745;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        .cta-button {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+            font-size: 16px;
+        }
+        .cta-button:hover {
+            background: #0056b3;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">FolioZen</div>
+            <h1 class="welcome-title">Bienvenue sur FolioZen !</h1>
+        </div>
+
+        <p>Bonjour {{ user.firstName }},</p>
+        
+        <p>Félicitations ! Votre abonnement <span class="plan-badge">{{ plan|upper }}</span> a été activé avec succès.</p>
+
+        <p>Vous pouvez maintenant profiter de toutes les fonctionnalités avancées de FolioZen pour gérer vos investissements de manière optimale.</p>
+
+        <div class="features">
+            <h3>🎯 Vos fonctionnalités {{ plan|upper }} :</h3>
+            
+            {% if plan == 'pro' %}
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Jusqu'à 50 cryptomonnaies</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Jusqu'à 100 actifs</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Jusqu'à 20 comptes d'épargne</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Jusqu'à 1000 transactions</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Rapports PDF détaillés</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Analyses avancées</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Support prioritaire</span>
+                </div>
+            {% elseif plan == 'enterprise' %}
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Cryptomonnaies illimitées</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Actifs illimités</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Comptes d'épargne illimités</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Transactions illimitées</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Rapports PDF avancés</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Analyses personnalisées</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">✓</span>
+                    <span>Support dédié</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <div style="text-align: center;">
+            <a href="https://foliozen.com/dashboard" class="cta-button">
+                Commencer à utiliser FolioZen
+            </a>
+        </div>
+
+        <h3>🚀 Prochaines étapes :</h3>
+        <ol>
+            <li><strong>Ajoutez vos investissements</strong> : Commencez par ajouter vos cryptomonnaies, actifs et comptes d'épargne</li>
+            <li><strong>Enregistrez vos transactions</strong> : Suivez vos achats, ventes et mouvements</li>
+            <li><strong>Analysez vos performances</strong> : Consultez vos rapports et analyses détaillées</li>
+            <li><strong>Exportez vos données</strong> : Générez des rapports PDF pour vos archives</li>
+        </ol>
+
+        <p><strong>Besoin d'aide ?</strong> Notre équipe support est là pour vous accompagner. Contactez-nous à support@foliozen.com</p>
+
+        <div class="footer">
+            <p>Merci de faire confiance à FolioZen pour la gestion de vos investissements.</p>
+            <p>© {{ "now"|date('Y') }} FolioZen. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

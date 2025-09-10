@@ -1,0 +1,181 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}{{ page_subtitle }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Avertissement et Prévention
+                </h3>
+                <div class="card-actions">
+                    <small class="text-muted">Dernière mise à jour : {{ "now"|date('d/m/Y') }}</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="legal-content">
+                    <div class="alert alert-warning" role="alert">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>Attention importante</h5>
+                        <p class="mb-0">FolioZen est un outil de suivi et de gestion d'investissements. Nous ne fournissons PAS de conseils financiers personnalisés.</p>
+                    </div>
+
+                    <h4>⚠️ Avertissements généraux</h4>
+                    <div class="alert alert-danger" role="alert">
+                        <h6><i class="fas fa-ban me-2"></i>Pas de conseils financiers</h6>
+                        <p class="mb-0">FolioZen ne constitue pas un conseil en investissement. Toutes les décisions d'investissement vous appartiennent et engagent votre responsabilité.</p>
+                    </div>
+
+                    <h4>📊 Risques liés aux investissements</h4>
+                    <p>Tout investissement comporte des risques. Vous devez être conscient que :</p>
+                    <ul>
+                        <li><strong>Perte en capital :</strong> Vous pouvez perdre tout ou partie de votre investissement</li>
+                        <li><strong>Volatilité :</strong> Les valeurs peuvent fluctuer de manière importante</li>
+                        <li><strong>Liquidité :</strong> Certains investissements peuvent être difficiles à vendre</li>
+                        <li><strong>Inflation :</strong> L'inflation peut réduire la valeur réelle de vos investissements</li>
+                        <li><strong>Risque de change :</strong> Pour les investissements en devises étrangères</li>
+                    </ul>
+
+                    <h4>💡 Recommandations importantes</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="recommendation-card">
+                                <h6><i class="fas fa-graduation-cap text-primary me-2"></i>Éduquez-vous</h6>
+                                <p>Formez-vous avant d'investir. Comprenez les produits financiers que vous utilisez.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="recommendation-card">
+                                <h6><i class="fas fa-balance-scale text-success me-2"></i>Diversifiez</h6>
+                                <p>Ne mettez pas tous vos œufs dans le même panier. Diversifiez vos investissements.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="recommendation-card">
+                                <h6><i class="fas fa-piggy-bank text-warning me-2"></i>Épargnez d'abord</h6>
+                                <p>Assurez-vous d'avoir un fonds d'urgence avant d'investir.</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="recommendation-card">
+                                <h6><i class="fas fa-clock text-info me-2"></i>Investissez long terme</h6>
+                                <p>Les investissements sont plus sûrs sur le long terme. Évitez le trading à court terme.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>🚫 Limitations du service</h4>
+                    <p>FolioZen ne peut garantir :</p>
+                    <ul>
+                        <li>L'exactitude des données de marché (fournies par des tiers)</li>
+                        <li>La disponibilité continue du service</li>
+                        <li>La sécurité absolue de vos données</li>
+                        <li>L'absence d'erreurs dans les calculs</li>
+                    </ul>
+
+                    <h4>💰 Pas de remboursement</h4>
+                    <div class="alert alert-info" role="alert">
+                        <h6><i class="fas fa-info-circle me-2"></i>Politique de remboursement</h6>
+                        <p class="mb-0">Les abonnements payants ne sont pas remboursables. Consultez notre <a href="{{ path('app_legal_refund') }}">politique de remboursement</a> pour plus de détails.</p>
+                    </div>
+
+                    <h4>🔒 Sécurité et confidentialité</h4>
+                    <p>Bien que nous mettions tout en œuvre pour protéger vos données :</p>
+                    <ul>
+                        <li>Ne partagez jamais vos identifiants de connexion</li>
+                        <li>Utilisez des mots de passe forts et uniques</li>
+                        <li>Activez l'authentification à deux facteurs si disponible</li>
+                        <li>Déconnectez-vous après chaque session</li>
+                    </ul>
+
+                    <h4>📞 En cas de problème</h4>
+                    <p>Si vous rencontrez des difficultés :</p>
+                    <ul>
+                        <li>Consultez notre <a href="{{ path('app_legal_contact') }}">page de contact</a></li>
+                        <li>Contactez notre support technique</li>
+                        <li>Signalez tout comportement suspect</li>
+                    </ul>
+
+                    <h4>⚖️ Responsabilité</h4>
+                    <p>En utilisant InvestFlow, vous reconnaissez que :</p>
+                    <ul>
+                        <li>Vous investissez à vos propres risques</li>
+                        <li>Vous êtes seul responsable de vos décisions d'investissement</li>
+                        <li>Vous ne tiendrez pas InvestFlow responsable de vos pertes</li>
+                        <li>Vous avez lu et compris tous les avertissements</li>
+                    </ul>
+
+                    <div class="alert alert-success" role="alert">
+                        <h6><i class="fas fa-check-circle me-2"></i>Investissement responsable</h6>
+                        <p class="mb-0">FolioZen encourage un investissement responsable et éduqué. Prenez le temps de comprendre les risques avant d'investir.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.legal-content {
+    line-height: 1.6;
+}
+
+.legal-content h4 {
+    color: #667eea;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.legal-content h4:first-child {
+    margin-top: 0;
+}
+
+.legal-content ul {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.legal-content p {
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+.legal-content a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.legal-content a:hover {
+    text-decoration: underline;
+}
+
+.recommendation-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    height: 100%;
+}
+
+.recommendation-card h6 {
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.recommendation-card p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+</style>
+{% endblock %}

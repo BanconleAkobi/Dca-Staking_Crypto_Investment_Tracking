@@ -51,6 +51,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Crypto::class, mappedBy: 'user')]
     private Collection $cryptos;
 
+    /**
+     * @var Collection<int, Asset>
+     */
+    #[ORM\OneToMany(targetEntity: Asset::class, mappedBy: 'user')]
+    private Collection $assets;
+
+    /**
+     * @var Collection<int, SavingsAccount>
+     */
+    #[ORM\OneToMany(targetEntity: SavingsAccount::class, mappedBy: 'user')]
+    private Collection $savingsAccounts;
+
+    /**
+     * @var Collection<int, Withdrawal>
+     */
+    #[ORM\OneToMany(targetEntity: Withdrawal::class, mappedBy: 'user')]
+    private Collection $withdrawals;
+
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $pseudo = null;
 
@@ -61,6 +79,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->transactions = new ArrayCollection();
         $this->cryptos = new ArrayCollection();
+        $this->assets = new ArrayCollection();
+        $this->savingsAccounts = new ArrayCollection();
+        $this->withdrawals = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -248,5 +269,152 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, Asset>
+     */
+    public function getAssets(): Collection
+    {
+        return $this->assets;
+    }
+
+    public function addAsset(Asset $asset): static
+    {
+        if (!$this->assets->contains($asset)) {
+            $this->assets->add($asset);
+            $asset->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAsset(Asset $asset): static
+    {
+        if ($this->assets->removeElement($asset)) {
+            // set the owning side to null (unless already changed)
+            if ($asset->getUser() === $this) {
+                $asset->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SavingsAccount>
+     */
+    public function getSavingsAccounts(): Collection
+    {
+        return $this->savingsAccounts;
+    }
+
+    public function addSavingsAccount(SavingsAccount $savingsAccount): static
+    {
+        if (!$this->savingsAccounts->contains($savingsAccount)) {
+            $this->savingsAccounts->add($savingsAccount);
+            $savingsAccount->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSavingsAccount(SavingsAccount $savingsAccount): static
+    {
+        if ($this->savingsAccounts->removeElement($savingsAccount)) {
+            // set the owning side to null (unless already changed)
+            if ($savingsAccount->getUser() === $this) {
+                $savingsAccount->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Withdrawal>
+     */
+    public function getWithdrawals(): Collection
+    {
+        return $this->withdrawals;
+    }
+
+    public function addWithdrawal(Withdrawal $withdrawal): static
+    {
+        if (!$this->withdrawals->contains($withdrawal)) {
+            $this->withdrawals->add($withdrawal);
+            $withdrawal->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWithdrawal(Withdrawal $withdrawal): static
+    {
+        if ($this->withdrawals->removeElement($withdrawal)) {
+            // set the owning side to null (unless already changed)
+            if ($withdrawal->getUser() === $this) {
+                $withdrawal->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // Méthodes utilitaires pour la nouvelle architecture
+    public function getAllInvestments(): array
+    {
+        $investments = [];
+        
+        // Ajouter les actifs
+        foreach ($this->assets as $asset) {
+            $investments[] = [
+                'type' => 'asset',
+                'entity' => $asset,
+                'name' => $asset->getDisplayName(),
+                'category' => $asset->getTypeLabel()
+            ];
+        }
+        
+        // Ajouter les comptes d'épargne
+        foreach ($this->savingsAccounts as $savingsAccount) {
+            $investments[] = [
+                'type' => 'savings',
+                'entity' => $savingsAccount,
+                'name' => $savingsAccount->getDisplayName(),
+                'category' => $savingsAccount->getTypeLabel()
+            ];
+        }
+        
+        // Ajouter les cryptos (pour compatibilité pendant la migration)
+        foreach ($this->cryptos as $crypto) {
+            $investments[] = [
+                'type' => 'crypto',
+                'entity' => $crypto,
+                'name' => $crypto->getDisplayName(),
+                'category' => 'Cryptomonnaie'
+            ];
+        }
+        
+        return $investments;
+    }
+
+    public function getTotalInvestmentCount(): int
+    {
+        return $this->assets->count() + $this->savingsAccounts->count() + $this->cryptos->count();
+    }
+
+    public function getAssetsByType(string $type): array
+    {
+        return $this->assets->filter(function(Asset $asset) use ($type) {
+            return $asset->getType() === $type;
+        })->toArray();
+    }
+
+    public function getSavingsAccountsByType(string $type): array
+    {
+        return $this->savingsAccounts->filter(function(SavingsAccount $account) use ($type) {
+            return $account->getType() === $type;
+        })->toArray();
     }
 }

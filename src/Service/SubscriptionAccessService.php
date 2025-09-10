@@ -21,6 +21,45 @@ class SubscriptionAccessService
         return $currentCount < $limits['max_cryptos'];
     }
 
+    public function canAddAsset(User $user): bool
+    {
+        $plan = $user->getSubscriptionPlan();
+        $limits = $this->getPlanLimits($plan);
+        $currentCount = $user->getAssets()->count();
+
+        if ($limits['max_assets'] === -1) {
+            return true; // Unlimited
+        }
+
+        return $currentCount < $limits['max_assets'];
+    }
+
+    public function canAddSavingsAccount(User $user): bool
+    {
+        $plan = $user->getSubscriptionPlan();
+        $limits = $this->getPlanLimits($plan);
+        $currentCount = $user->getSavingsAccounts()->count();
+
+        if ($limits['max_savings_accounts'] === -1) {
+            return true; // Unlimited
+        }
+
+        return $currentCount < $limits['max_savings_accounts'];
+    }
+
+    public function canAddWithdrawal(User $user): bool
+    {
+        $plan = $user->getSubscriptionPlan();
+        $limits = $this->getPlanLimits($plan);
+        $currentCount = $user->getWithdrawals()->count();
+
+        if ($limits['max_withdrawals'] === -1) {
+            return true; // Unlimited
+        }
+
+        return $currentCount < $limits['max_withdrawals'];
+    }
+
     public function canAddTransaction(User $user): bool
     {
         $plan = $user->getSubscriptionPlan();
@@ -62,6 +101,9 @@ class SubscriptionAccessService
     {
         return match($feature) {
             'crypto' => 'Vous avez atteint la limite de cryptomonnaies pour votre plan gratuit. Passez au plan Pro pour ajouter jusqu\'à 50 cryptomonnaies.',
+            'asset' => 'Vous avez atteint la limite d\'actifs pour votre plan gratuit. Passez au plan Pro pour ajouter jusqu\'à 100 actifs.',
+            'savings_account' => 'Vous avez atteint la limite de comptes d\'épargne pour votre plan gratuit. Passez au plan Pro pour ajouter jusqu\'à 20 comptes.',
+            'withdrawal' => 'Vous avez atteint la limite de retraits pour votre plan gratuit. Passez au plan Pro pour ajouter jusqu\'à 500 retraits.',
             'transaction' => 'Vous avez atteint la limite de transactions pour votre plan gratuit. Passez au plan Pro pour ajouter jusqu\'à 1000 transactions.',
             'pdf' => 'Les rapports PDF sont disponibles avec les plans Pro et Entreprise. Passez à un plan payant pour générer des rapports détaillés.',
             'analytics' => 'Les analyses avancées sont disponibles avec les plans Pro et Entreprise. Passez à un plan payant pour accéder à plus d\'insights.',
@@ -75,6 +117,9 @@ class SubscriptionAccessService
         return match($plan) {
             'free' => [
                 'max_cryptos' => 3,
+                'max_assets' => 5,
+                'max_savings_accounts' => 3,
+                'max_withdrawals' => 10,
                 'max_transactions' => 10,
                 'pdf_reports' => false,
                 'api_calls_per_day' => 100,
@@ -83,6 +128,9 @@ class SubscriptionAccessService
             ],
             'pro' => [
                 'max_cryptos' => 50,
+                'max_assets' => 100,
+                'max_savings_accounts' => 20,
+                'max_withdrawals' => 500,
                 'max_transactions' => 1000,
                 'pdf_reports' => true,
                 'api_calls_per_day' => 1000,
@@ -92,6 +140,9 @@ class SubscriptionAccessService
             ],
             'enterprise' => [
                 'max_cryptos' => -1, // unlimited
+                'max_assets' => -1, // unlimited
+                'max_savings_accounts' => -1, // unlimited
+                'max_withdrawals' => -1, // unlimited
                 'max_transactions' => -1, // unlimited
                 'pdf_reports' => true,
                 'api_calls_per_day' => 10000,
@@ -103,6 +154,9 @@ class SubscriptionAccessService
             ],
             default => [
                 'max_cryptos' => 3,
+                'max_assets' => 5,
+                'max_savings_accounts' => 3,
+                'max_withdrawals' => 10,
                 'max_transactions' => 10,
                 'pdf_reports' => false,
                 'api_calls_per_day' => 100,
@@ -119,6 +173,9 @@ class SubscriptionAccessService
 
         $currentCount = match($type) {
             'crypto' => $user->getCryptos()->count(),
+            'asset' => $user->getAssets()->count(),
+            'savings_account' => $user->getSavingsAccounts()->count(),
+            'withdrawal' => $user->getWithdrawals()->count(),
             'transaction' => $user->getTransactions()->count(),
             default => 0
         };

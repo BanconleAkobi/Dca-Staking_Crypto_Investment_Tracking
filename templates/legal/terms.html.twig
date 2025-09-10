@@ -1,0 +1,141 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}{{ page_subtitle }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-file-contract me-2"></i>
+                    Conditions Générales d'Utilisation
+                </h3>
+                <div class="card-actions">
+                    <small class="text-muted">Dernière mise à jour : {{ "now"|date('d/m/Y') }}</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="legal-content">
+                    <h4>1. Objet et acceptation</h4>
+                    <p>Les présentes Conditions Générales d'Utilisation (CGU) régissent l'utilisation de la plateforme <strong>FolioZen</strong>, service de suivi et de gestion d'investissements en ligne.</p>
+                    <p>L'utilisation de notre service implique l'acceptation pleine et entière des présentes CGU. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.</p>
+
+                    <h4>2. Description du service</h4>
+                    <p>FolioZen est une plateforme de gestion d'investissements qui permet aux utilisateurs de :</p>
+                    <ul>
+                        <li>Suivre leurs investissements (cryptomonnaies, actions, ETF, obligations, etc.)</li>
+                        <li>Gérer leurs comptes d'épargne français (Livret A, LDDS, LEP, PEL, etc.)</li>
+                        <li>Enregistrer leurs transactions et retraits</li>
+                        <li>Consulter des analyses et rapports de portefeuille</li>
+                        <li>Exporter leurs données d'investissement</li>
+                    </ul>
+
+                    <h4>3. Inscription et compte utilisateur</h4>
+                    <p>Pour utiliser InvestFlow, vous devez créer un compte en fournissant des informations exactes et à jour. Vous êtes responsable de :</p>
+                    <ul>
+                        <li>La confidentialité de vos identifiants de connexion</li>
+                        <li>Toutes les activités effectuées depuis votre compte</li>
+                        <li>La mise à jour de vos informations personnelles</li>
+                    </ul>
+
+                    <h4>4. Plans d'abonnement</h4>
+                    <p>InvestFlow propose plusieurs plans d'abonnement :</p>
+                    <ul>
+                        <li><strong>Plan Gratuit :</strong> Fonctionnalités de base avec limitations</li>
+                        <li><strong>Plan Pro :</strong> Fonctionnalités avancées pour 9,99€/mois</li>
+                        <li><strong>Plan Entreprise :</strong> Fonctionnalités illimitées pour 29,99€/mois</li>
+                    </ul>
+                    <p>Les abonnements sont facturés mensuellement et renouvelés automatiquement.</p>
+
+                    <h4>5. Utilisation du service</h4>
+                    <p>Vous vous engagez à :</p>
+                    <ul>
+                        <li>Utiliser le service conformément à la législation en vigueur</li>
+                        <li>Ne pas tenter de contourner les limitations techniques</li>
+                        <li>Ne pas utiliser le service à des fins illégales ou frauduleuses</li>
+                        <li>Respecter les droits de propriété intellectuelle</li>
+                    </ul>
+
+                    <h4>6. Données personnelles</h4>
+                    <p>Le traitement de vos données personnelles est régi par notre <a href="{{ path('app_legal_privacy') }}">Politique de Confidentialité</a>. En utilisant notre service, vous consentez à ce traitement.</p>
+
+                    <h4>7. Propriété intellectuelle</h4>
+                    <p>Tous les éléments de la plateforme FolioZen (design, code, contenu) sont protégés par le droit d'auteur et appartiennent à FolioZen ou à ses partenaires.</p>
+
+                    <h4>8. Limitation de responsabilité</h4>
+                    <p>FolioZen ne peut être tenu responsable :</p>
+                    <ul>
+                        <li>Des pertes financières résultant de vos investissements</li>
+                        <li>Des erreurs dans les données de marché fournies par des tiers</li>
+                        <li>Des interruptions temporaires du service</li>
+                        <li>Des dommages indirects ou consécutifs</li>
+                    </ul>
+
+                    <h4>9. Suspension et résiliation</h4>
+                    <p>Nous nous réservons le droit de suspendre ou résilier votre compte en cas de :</p>
+                    <ul>
+                        <li>Violation des présentes CGU</li>
+                        <li>Non-paiement des abonnements</li>
+                        <li>Utilisation frauduleuse du service</li>
+                    </ul>
+
+                    <h4>10. Modifications des CGU</h4>
+                    <p>Nous nous réservons le droit de modifier ces CGU à tout moment. Les modifications seront notifiées par email et prendront effet 30 jours après la notification.</p>
+
+                    <h4>11. Droit applicable et juridiction</h4>
+                    <p>Les présentes CGU sont régies par le droit français. En cas de litige, les tribunaux français seront compétents.</p>
+
+                    <h4>12. Contact</h4>
+                    <p>Pour toute question concernant ces CGU, vous pouvez nous contacter :</p>
+                    <ul>
+                        <li>Email : legal@foliozen.fr</li>
+                        <li>Adresse : FolioZen, 123 Avenue des Champs-Élysées, 75008 Paris, France</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.legal-content {
+    line-height: 1.6;
+}
+
+.legal-content h4 {
+    color: #667eea;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.legal-content h4:first-child {
+    margin-top: 0;
+}
+
+.legal-content ul {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.legal-content li {
+    margin-bottom: 0.5rem;
+}
+
+.legal-content p {
+    margin-bottom: 1rem;
+    text-align: justify;
+}
+
+.legal-content a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.legal-content a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}

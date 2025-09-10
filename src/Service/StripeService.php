@@ -7,16 +7,19 @@ use App\Entity\UserSubscription;
 use Doctrine\ORM\EntityManagerInterface;
 use Stripe\StripeClient;
 use Stripe\Exception\ApiErrorException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class StripeService
 {
     private StripeClient $stripe;
     private EntityManagerInterface $entityManager;
+    private ParameterBagInterface $parameterBag;
 
-    public function __construct(EntityManagerInterface $entityManager, string $stripeSecretKey)
+    public function __construct(EntityManagerInterface $entityManager, string $stripeSecretKey, ParameterBagInterface $parameterBag)
     {
         $this->stripe = new StripeClient($stripeSecretKey);
         $this->entityManager = $entityManager;
+        $this->parameterBag = $parameterBag;
     }
 
     public function createCustomer(User $user): string
@@ -115,6 +118,94 @@ class StripeService
     }
 
 
+    public function getCheckoutSession(string $sessionId)
+    {
+        try {
+            return $this->stripe->checkout->sessions->retrieve($sessionId);
+        } catch (ApiErrorException $e) {
+            throw new \Exception('Erreur lors de la récupération de la session: ' . $e->getMessage());
+        }
+    }
+
+    public function updateUserSubscription(User $user, string $plan, string $stripeCustomerId): void
+    {
+        $subscription = $user->getSubscription();
+        
+        if (!$subscription) {
+            $subscription = new UserSubscription();
+            $subscription->setUser($user);
+            $this->entityManager->persist($subscription);
+        }
+
+        $subscription->setPlan($plan);
+        $subscription->setStripeCustomerId($stripeCustomerId);
+        $subscription->setStatus('active');
+        $subscription->setCurrentPeriodStart(new \DateTimeImmutable());
+        $subscription->setCurrentPeriodEnd((new \DateTimeImmutable())->modify('+1 month'));
+
+        $this->entityManager->flush();
+    }
+
+    public function getInvoiceFromSession(string $sessionId): ?array
+    {
+        try {
+            $session = $this->stripe->checkout->sessions->retrieve($sessionId);
+            
+            if ($session->invoice) {
+                $invoice = $this->stripe->invoices->retrieve($session->invoice);
+                
+                return [
+                    'id' => $invoice->id,
+                    'amount' => $invoice->amount_paid / 100, // Convertir de centimes
+                    'currency' => $invoice->currency,
+                    'status' => $invoice->status,
+                    'created' => $invoice->created,
+                    'invoice_pdf' => $invoice->invoice_pdf,
+                    'hosted_invoice_url' => $invoice->hosted_invoice_url,
+                ];
+            }
+            
+            return null;
+        } catch (ApiErrorException $e) {
+            throw new \Exception('Erreur lors de la récupération de la facture: ' . $e->getMessage());
+        }
+    }
+
+    public function findCustomerByEmail(string $email)
+    {
+        try {
+            $customers = $this->stripe->customers->all(['email' => $email, 'limit' => 1]);
+            return $customers->data[0] ?? null;
+        } catch (ApiErrorException $e) {
+            return null;
+        }
+    }
+
+    public function getRecentSubscriptions(string $customerId): array
+    {
+        try {
+            $subscriptions = $this->stripe->subscriptions->all([
+                'customer' => $customerId,
+                'status' => 'active',
+                'limit' => 1
+            ]);
+            
+            $result = [];
+            foreach ($subscriptions->data as $subscription) {
+                $result[] = [
+                    'id' => $subscription->id,
+                    'amount' => $subscription->items->data[0]->price->unit_amount / 100,
+                    'status' => $subscription->status,
+                    'created' => $subscription->created,
+                ];
+            }
+            
+            return $result;
+        } catch (ApiErrorException $e) {
+            throw new \Exception('Erreur lors de la récupération des abonnements: ' . $e->getMessage());
+        }
+    }
+
     public function getPlans(): array
     {
         return [
@@ -125,13 +216,19 @@ class StripeService
                 'interval' => 'month',
                 'features' => [
                     'Jusqu\'à 3 cryptomonnaies',
+                    'Jusqu\'à 5 actifs',
+                    'Jusqu\'à 3 comptes d\'épargne',
                     'Jusqu\'à 10 transactions',
+                    'Jusqu\'à 10 retraits',
                     'Suivi de portefeuille basique',
                     'Analyses simples',
                     'Support par email',
                 ],
                 'limits' => [
                     'max_cryptos' => 3,
+                    'max_assets' => 5,
+                    'max_savings_accounts' => 3,
+                    'max_withdrawals' => 10,
                     'max_transactions' => 10,
                     'pdf_reports' => false,
                 ],
@@ -141,10 +238,13 @@ class StripeService
                 'price' => 9.99,
                 'currency' => 'eur',
                 'interval' => 'month',
-                'stripe_price_id' => 'price_pro_monthly', // You'll need to create this in Stripe
+                'payment_link' => $this->parameterBag->get('stripe.payment_link.pro'),
                 'features' => [
                     'Jusqu\'à 50 cryptomonnaies',
+                    'Jusqu\'à 100 actifs',
+                    'Jusqu\'à 20 comptes d\'épargne',
                     'Jusqu\'à 1000 transactions',
+                    'Jusqu\'à 500 retraits',
                     'Rapports PDF détaillés',
                     'Analyses avancées',
                     'Export de données',
@@ -152,6 +252,9 @@ class StripeService
                 ],
                 'limits' => [
                     'max_cryptos' => 50,
+                    'max_assets' => 100,
+                    'max_savings_accounts' => 20,
+                    'max_withdrawals' => 500,
                     'max_transactions' => 1000,
                     'pdf_reports' => true,
                 ],
@@ -161,10 +264,13 @@ class StripeService
                 'price' => 29.99,
                 'currency' => 'eur',
                 'interval' => 'month',
-                'stripe_price_id' => 'price_enterprise_monthly', // You'll need to create this in Stripe
+                'payment_link' => $this->parameterBag->get('stripe.payment_link.enterprise'),
                 'features' => [
                     'Cryptomonnaies illimitées',
+                    'Actifs illimités',
+                    'Comptes d\'épargne illimités',
                     'Transactions illimitées',
+                    'Retraits illimités',
                     'Rapports PDF avancés',
                     'Analyses personnalisées',
                     'Export de données complet',
@@ -173,6 +279,9 @@ class StripeService
                 ],
                 'limits' => [
                     'max_cryptos' => -1,
+                    'max_assets' => -1,
+                    'max_savings_accounts' => -1,
+                    'max_withdrawals' => -1,
                     'max_transactions' => -1,
                     'pdf_reports' => true,
                 ],

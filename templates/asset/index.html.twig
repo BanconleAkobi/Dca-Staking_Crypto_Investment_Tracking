@@ -1,0 +1,236 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Actifs{% endblock %}
+{% block page_subtitle %}Gérez tous vos investissements{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Mes Actifs</h2>
+        <p class="text-muted mb-0">Suivez tous vos investissements en un seul endroit</p>
+    </div>
+    <a href="{{ path('app_asset_new') }}" class="btn btn-primary-modern btn-modern">
+        <i class="fas fa-plus me-2"></i>
+        Ajouter un actif
+    </a>
+</div>
+
+{% if assets|length > 0 %}
+    <!-- Stats Overview -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Total d'actifs</div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ totalAssets }}</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-info-circle"></i>
+                Tous types confondus
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Types d'actifs</div>
+                <div class="stat-icon success">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ assetsByType|keys|length }}</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-tags"></i>
+                Catégories différentes
+            </div>
+        </div>
+    </div>
+
+    <!-- Assets by Type -->
+    {% for type, typeAssets in assetsByType %}
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ get_asset_type_icon(type) }} me-2"></i>
+                    {{ get_asset_type_label(type) }}
+                    <span class="badge bg-primary ms-2">{{ typeAssets|length }}</span>
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_asset_by_type', {'type': type}) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>
+                        Voir tout
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for asset in typeAssets|slice(0, 3) %}
+                        <div class="col-md-4 mb-3">
+                            <div class="asset-card">
+                                <div class="asset-header">
+                                    <div class="asset-info">
+                                        <div class="asset-symbol">{{ asset.symbol }}</div>
+                                        <div class="asset-name">{{ asset.name }}</div>
+                                    </div>
+                                    <div class="asset-status">
+                                        {% if asset.isActive %}
+                                            <span class="badge bg-success">Actif</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactif</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="asset-details">
+                                    <div class="asset-type">{{ asset.getTypeLabel() }}</div>
+                                    {% if asset.category %}
+                                        <div class="asset-category">{{ asset.getCategoryLabel() }}</div>
+                                    {% endif %}
+                                    {% if asset.currentPrice %}
+                                        <div class="asset-price">${{ asset.currentPrice|number_format(2, '.', ' ') }}</div>
+                                    {% endif %}
+                                </div>
+                                <div class="asset-actions">
+                                    <a href="{{ path('app_asset_show', {'id': asset.id}) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_asset_edit', {'id': asset.id}) }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if typeAssets|length > 3 %}
+                    <div class="text-center mt-3">
+                        <a href="{{ path('app_asset_by_type', {'type': type}) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Voir les {{ typeAssets|length - 3 }} autres {{ get_asset_type_label(type)|lower }}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+{% else %}
+    <div class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">Aucun actif en portefeuille</h3>
+            <p class="text-muted mb-4">Commencez par ajouter vos premiers investissements.</p>
+            <a href="{{ path('app_asset_new') }}" class="btn btn-primary-modern btn-modern">
+                <i class="fas fa-plus me-2"></i>
+                Ajouter mon premier actif
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+.asset-card {
+    background: var(--white);
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.asset-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.asset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.asset-info {
+    flex: 1;
+}
+
+.asset-symbol {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.asset-name {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+}
+
+.asset-details {
+    margin-bottom: 1rem;
+}
+
+.asset-type {
+    font-size: 0.85rem;
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.asset-category {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.asset-price {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.asset-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.asset-actions .btn {
+    flex: 1;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+// Fonction pour obtenir l'icône selon le type d'actif
+function getAssetTypeIcon(type) {
+    const icons = {
+        'crypto': 'coins',
+        'stock': 'chart-line',
+        'etf': 'chart-area',
+        'bond': 'hand-holding-usd',
+        'savings': 'piggy-bank',
+        'real_estate': 'home',
+        'commodity': 'box',
+        'currency': 'dollar-sign'
+    };
+    return icons[type] || 'chart-pie';
+}
+
+// Fonction pour obtenir le label selon le type d'actif
+function getAssetTypeLabel(type) {
+    const labels = {
+        'crypto': 'Cryptomonnaies',
+        'stock': 'Actions',
+        'etf': 'ETF',
+        'bond': 'Obligations',
+        'savings': 'Épargne',
+        'real_estate': 'Immobilier',
+        'commodity': 'Matières premières',
+        'currency': 'Devises'
+    };
+    return labels[type] || 'Actifs';
+}
+</script>
+{% endblock %}

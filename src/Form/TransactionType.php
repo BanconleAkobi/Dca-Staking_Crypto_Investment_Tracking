@@ -2,9 +2,11 @@
 
 namespace App\Form;
 
+use App\Entity\Asset;
 use App\Entity\Crypto;
+use App\Entity\SavingsAccount;
 use App\Entity\Transaction;
-use App\Entity\user;
+use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -25,13 +27,39 @@ class TransactionType extends AbstractType
                 },
                 'label' => 'Cryptomonnaie',
                 'attr' => ['class' => 'form-select'],
-                'placeholder' => 'Sélectionner une cryptomonnaie'
+                'placeholder' => 'Sélectionner une cryptomonnaie',
+                'required' => false
+            ])
+            ->add('asset', EntityType::class, [
+                'class' => Asset::class,
+                'choice_label' => function(Asset $asset) {
+                    return $asset->getName() . ' (' . $asset->getSymbol() . ')';
+                },
+                'label' => 'Actif',
+                'attr' => ['class' => 'form-select'],
+                'placeholder' => 'Sélectionner un actif',
+                'required' => false
+            ])
+            ->add('savingsAccount', EntityType::class, [
+                'class' => SavingsAccount::class,
+                'choice_label' => function(SavingsAccount $account) {
+                    return $account->getName() . ' (' . $account->getTypeLabel() . ')';
+                },
+                'label' => 'Compte d\'épargne',
+                'attr' => ['class' => 'form-select'],
+                'placeholder' => 'Sélectionner un compte d\'épargne',
+                'required' => false
             ])
             ->add('type', ChoiceType::class, [
                 'label' => 'Type d\'opération',
                 'choices' => [
                     'Achat' => Transaction::TYPE_BUY,
+                    'Vente' => Transaction::TYPE_SELL,
+                    'Dépôt' => Transaction::TYPE_DEPOSIT,
+                    'Retrait' => Transaction::TYPE_WITHDRAWAL,
                     'Récompense de staking' => Transaction::TYPE_STAKE_REWARD,
+                    'Dividende' => Transaction::TYPE_DIVIDEND,
+                    'Intérêt' => Transaction::TYPE_INTEREST,
                 ],
                 'attr' => ['class' => 'form-select'],
             ])

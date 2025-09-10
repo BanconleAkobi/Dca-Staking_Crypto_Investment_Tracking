@@ -1,0 +1,224 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Retraits{% endblock %}
+{% block page_subtitle %}Suivez vos retraits et sorties d'argent{% endblock %}
+
+{% block dashboard_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Mes Retraits</h2>
+        <p class="text-muted mb-0">Historique de tous vos retraits d'investissements</p>
+    </div>
+    <a href="{{ path('app_withdrawal_new') }}" class="btn btn-primary-modern btn-modern">
+        <i class="fas fa-plus me-2"></i>
+        Nouveau retrait
+    </a>
+</div>
+
+{% if withdrawals|length > 0 %}
+    <!-- Stats Overview -->
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Total retraits</div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ totalWithdrawals }}</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-list"></i>
+                Tous types confondus
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Montant total</div>
+                <div class="stat-icon success">
+                    <i class="fas fa-euro-sign"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ totalAmount|number_format(0, '.', ' ') }}€</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-wallet"></i>
+                Tous retraits
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">En attente</div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ pendingWithdrawals }}</div>
+            <div class="stat-change neutral">
+                <i class="fas fa-hourglass-half"></i>
+                Retraits en cours
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawals by Type -->
+    {% for type, typeWithdrawals in withdrawalsByType %}
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ get_withdrawal_type_icon(type) }} me-2"></i>
+                    {{ get_withdrawal_type_label(type) }}
+                    <span class="badge bg-primary ms-2">{{ typeWithdrawals|length }}</span>
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_withdrawal_by_type', {'type': type}) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-eye me-1"></i>
+                        Voir tout
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for withdrawal in typeWithdrawals|slice(0, 3) %}
+                        <div class="col-md-4 mb-3">
+                            <div class="withdrawal-card">
+                                <div class="withdrawal-header">
+                                    <div class="withdrawal-info">
+                                        <div class="withdrawal-amount">{{ withdrawal.amount|number_format(0, '.', ' ') }}€</div>
+                                        <div class="withdrawal-date">{{ withdrawal.date|date('d/m/Y') }}</div>
+                                    </div>
+                                    <div class="withdrawal-status">
+                                        <span class="badge bg-{{ get_withdrawal_status_color(withdrawal.status) }}">
+                                            <i class="fas fa-{{ get_withdrawal_status_icon(withdrawal.status) }} me-1"></i>
+                                            {{ withdrawal.getStatusLabel() }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="withdrawal-details">
+                                    <div class="withdrawal-type">{{ withdrawal.getTypeLabel() }}</div>
+                                    {% if withdrawal.reason %}
+                                        <div class="withdrawal-reason">{{ withdrawal.reason }}</div>
+                                    {% endif %}
+                                    {% if withdrawal.asset %}
+                                        <div class="withdrawal-source">
+                                            <i class="fas fa-chart-pie me-1"></i>
+                                            {{ withdrawal.asset.name }}
+                                        </div>
+                                    {% elseif withdrawal.savingsAccount %}
+                                        <div class="withdrawal-source">
+                                            <i class="fas fa-piggy-bank me-1"></i>
+                                            {{ withdrawal.savingsAccount.name }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="withdrawal-actions">
+                                    <a href="{{ path('app_withdrawal_show', {'id': withdrawal.id}) }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_withdrawal_edit', {'id': withdrawal.id}) }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% if typeWithdrawals|length > 3 %}
+                    <div class="text-center mt-3">
+                        <a href="{{ path('app_withdrawal_by_type', {'type': type}) }}" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Voir les {{ typeWithdrawals|length - 3 }} autres {{ get_withdrawal_type_label(type)|lower }}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+
+{% else %}
+    <div class="text-center py-5">
+        <div class="empty-state">
+            <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">Aucun retrait enregistré</h3>
+            <p class="text-muted mb-4">Commencez par enregistrer vos premiers retraits.</p>
+            <a href="{{ path('app_withdrawal_new') }}" class="btn btn-primary-modern btn-modern">
+                <i class="fas fa-plus me-2"></i>
+                Enregistrer mon premier retrait
+            </a>
+        </div>
+    </div>
+{% endif %}
+
+<style>
+.withdrawal-card {
+    background: var(--white);
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.withdrawal-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.withdrawal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.withdrawal-info {
+    flex: 1;
+}
+
+.withdrawal-amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.withdrawal-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0;
+}
+
+.withdrawal-details {
+    margin-bottom: 1rem;
+}
+
+.withdrawal-type {
+    font-size: 0.85rem;
+    color: #667eea;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.withdrawal-reason {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.withdrawal-source {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+}
+
+.withdrawal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.withdrawal-actions .btn {
+    flex: 1;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Nouvel Actif{% endblock %}
+{% block page_subtitle %}Ajoutez un nouvel investissement à votre portefeuille{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Ajouter un nouvel actif
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_asset_index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Retour
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'modern-form', 'novalidate': 'novalidate'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.name, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.symbol, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.symbol, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.symbol) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.type, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.type, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.type) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.category, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.category, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.category) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ form_label(form.currency, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.currency, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.currency) }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ form_label(form.currentPrice, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.currentPrice, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.currentPrice) }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            {{ form_label(form.exchange, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.exchange, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.exchange) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.isin, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.isin, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.isin) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <div class="form-check">
+                                {{ form_widget(form.isActive, {'attr': {'class': 'form-check-input modern-checkbox'}}) }}
+                                {{ form_label(form.isActive, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                            </div>
+                            {{ form_errors(form.isActive) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control modern-textarea'}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('app_asset_index') }}" class="btn btn-secondary-modern btn-modern">
+                        <i class="fas fa-times me-2"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary-modern btn-modern">
+                        <i class="fas fa-save me-2"></i>
+                        Enregistrer l'actif
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Section -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Conseils pour ajouter un actif
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-coins text-warning me-2"></i>Cryptomonnaies</h6>
+                        <p class="text-muted small">Utilisez le symbole officiel (BTC, ETH, etc.) et sélectionnez la catégorie appropriée.</p>
+                        
+                        <h6><i class="fas fa-chart-line text-success me-2"></i>Actions</h6>
+                        <p class="text-muted small">Indiquez le symbole de trading et la bourse où l'action est cotée.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-area text-info me-2"></i>ETF</h6>
+                        <p class="text-muted small">Précisez le code ISIN si disponible pour un suivi plus précis.</p>
+                        
+                        <h6><i class="fas fa-piggy-bank text-primary me-2"></i>Épargne</h6>
+                        <p class="text-muted small">Pour les comptes d'épargne, utilisez la section dédiée aux comptes d'épargne.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modern-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.modern-form .form-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.modern-form .form-control,
+.modern-form .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.modern-form .form-control:focus,
+.modern-form .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.modern-form .form-check {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.modern-form .form-check-input {
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+    margin-top: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-uppercase symbol field
+    const symbolField = document.querySelector('input[name="asset[symbol]"]');
+    if (symbolField) {
+        symbolField.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+
+    // Show/hide fields based on asset type
+    const typeField = document.querySelector('select[name="asset[type]"]');
+    const categoryField = document.querySelector('select[name="asset[category]"]');
+    const isinField = document.querySelector('input[name="asset[isin]"]');
+    const exchangeField = document.querySelector('input[name="asset[exchange]"]');
+
+    function updateFieldsVisibility() {
+        const selectedType = typeField.value;
+        
+        // Show/hide ISIN field for stocks and ETFs
+        if (selectedType === 'stock' || selectedType === 'etf') {
+            isinField.closest('.form-group').style.display = 'block';
+            exchangeField.closest('.form-group').style.display = 'block';
+        } else {
+            isinField.closest('.form-group').style.display = 'none';
+            exchangeField.closest('.form-group').style.display = 'none';
+        }
+    }
+
+    if (typeField) {
+        typeField.addEventListener('change', updateFieldsVisibility);
+        updateFieldsVisibility(); // Initial call
+    }
+});
+</script>
+{% endblock %}

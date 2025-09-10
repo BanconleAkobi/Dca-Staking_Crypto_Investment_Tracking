@@ -23,18 +23,82 @@
                     </div>
                 {% endif %}
                 
-                <div class="row">
-                    <div class="col-md-6">
+                <!-- Sélection du type d'investissement -->
+                <div class="row mb-4">
+                    <div class="col-12">
                         <div class="form-group">
-                            {{ form_label(form.crypto, null, {'label_attr': {'class': 'form-label'}}) }}
-                            {{ form_widget(form.crypto) }}
-                            {% if form.crypto.vars.errors|length > 0 %}
-                                <div class="text-danger small mt-1">
-                                    {{ form_errors(form.crypto) }}
-                                </div>
-                            {% endif %}
+                            <label class="form-label">Type d'investissement</label>
+                            <div class="btn-group w-100" role="group" id="investmentTypeSelector">
+                                <input type="radio" class="btn-check" name="investment_type" id="type_crypto" value="crypto" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="type_crypto">
+                                    <i class="fas fa-coins me-2"></i>Cryptomonnaie
+                                </label>
+
+                                <input type="radio" class="btn-check" name="investment_type" id="type_asset" value="asset" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="type_asset">
+                                    <i class="fas fa-chart-pie me-2"></i>Actif
+                                </label>
+
+                                <input type="radio" class="btn-check" name="investment_type" id="type_savings" value="savings" autocomplete="off">
+                                <label class="btn btn-outline-primary" for="type_savings">
+                                    <i class="fas fa-piggy-bank me-2"></i>Épargne
+                                </label>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Champs dynamiques selon le type sélectionné -->
+                <div id="crypto-fields" class="investment-fields" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.crypto, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.crypto) }}
+                                {% if form.crypto.vars.errors|length > 0 %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form_errors(form.crypto) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="asset-fields" class="investment-fields" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.asset, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.asset) }}
+                                {% if form.asset.vars.errors|length > 0 %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form_errors(form.asset) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="savings-fields" class="investment-fields" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form_label(form.savingsAccount, null, {'label_attr': {'class': 'form-label'}}) }}
+                                {{ form_widget(form.savingsAccount) }}
+                                {% if form.savingsAccount.vars.errors|length > 0 %}
+                                    <div class="text-danger small mt-1">
+                                        {{ form_errors(form.savingsAccount) }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Type d'opération (commun à tous) -->
+                <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             {{ form_label(form.type, null, {'label_attr': {'class': 'form-label'}}) }}
@@ -125,4 +189,47 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelector = document.getElementById('investmentTypeSelector');
+    const cryptoFields = document.getElementById('crypto-fields');
+    const assetFields = document.getElementById('asset-fields');
+    const savingsFields = document.getElementById('savings-fields');
+    
+    // Fonction pour masquer tous les champs
+    function hideAllFields() {
+        cryptoFields.style.display = 'none';
+        assetFields.style.display = 'none';
+        savingsFields.style.display = 'none';
+    }
+    
+    // Fonction pour afficher les champs selon le type sélectionné
+    function showFields(type) {
+        hideAllFields();
+        
+        switch(type) {
+            case 'crypto':
+                cryptoFields.style.display = 'block';
+                break;
+            case 'asset':
+                assetFields.style.display = 'block';
+                break;
+            case 'savings':
+                savingsFields.style.display = 'block';
+                break;
+        }
+    }
+    
+    // Écouter les changements de sélection
+    typeSelector.addEventListener('change', function(e) {
+        if (e.target.type === 'radio') {
+            showFields(e.target.value);
+        }
+    });
+    
+    // Masquer tous les champs au chargement
+    hideAllFields();
+});
+</script>
 {% endblock %}

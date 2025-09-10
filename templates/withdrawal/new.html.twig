@@ -1,0 +1,245 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Nouveau Retrait{% endblock %}
+{% block page_subtitle %}Enregistrez un retrait d'investissement{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Enregistrer un nouveau retrait
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_withdrawal_index') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>
+                        Retour
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {{ form_start(form, {'attr': {'class': 'modern-form', 'novalidate': 'novalidate'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.amount, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.amount, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.amount) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.date, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.date, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.date) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.type, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.type, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.type) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.status, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.status, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.status) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.asset, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.asset, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.asset) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.savingsAccount, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.savingsAccount, {'attr': {'class': 'form-select modern-select'}}) }}
+                            {{ form_errors(form.savingsAccount) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.taxAmount, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.taxAmount, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.taxAmount) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form_label(form.fees, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.fees, {'attr': {'class': 'form-control modern-input'}}) }}
+                            {{ form_errors(form.fees) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.reason, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.reason, {'attr': {'class': 'form-control modern-input'}}) }}
+                    {{ form_errors(form.reason) }}
+                </div>
+
+                <div class="form-group">
+                    {{ form_label(form.description, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(form.description, {'attr': {'class': 'form-control modern-textarea'}}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ path('app_withdrawal_index') }}" class="btn btn-secondary-modern btn-modern">
+                        <i class="fas fa-times me-2"></i>
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary-modern btn-modern">
+                        <i class="fas fa-save me-2"></i>
+                        Enregistrer le retrait
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help Section -->
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="content-card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-lightbulb me-2"></i>
+                    Conseils pour enregistrer un retrait
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-umbrella text-primary me-2"></i>Retraite</h6>
+                        <p class="text-muted small">Pour les retraits liés à la retraite ou aux objectifs de long terme.</p>
+                        
+                        <h6><i class="fas fa-exclamation-triangle text-warning me-2"></i>Urgence</h6>
+                        <p class="text-muted small">Retraits d'urgence pour des besoins imprévus.</p>
+                        
+                        <h6><i class="fas fa-balance-scale text-info me-2"></i>Rééquilibrage</h6>
+                        <p class="text-muted small">Pour rééquilibrer votre portefeuille d'investissements.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-receipt text-danger me-2"></i>Paiement d'impôts</h6>
+                        <p class="text-muted small">Retraits nécessaires pour payer des impôts sur les plus-values.</p>
+                        
+                        <h6><i class="fas fa-shopping-cart text-success me-2"></i>Achat</h6>
+                        <p class="text-muted small">Retraits pour financer un achat important.</p>
+                        
+                        <h6><i class="fas fa-chart-line text-secondary me-2"></i>Réinvestissement</h6>
+                        <p class="text-muted small">Retraits pour réinvestir dans d'autres actifs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modern-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.modern-form .form-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.modern-form .form-control,
+.modern-form .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.modern-form .form-control:focus,
+.modern-form .form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 2rem;
+    border-top: 1px solid #e9ecef;
+    margin-top: 2rem;
+}
+</style>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide/show fields based on withdrawal type
+    const typeField = document.querySelector('select[name="withdrawal[type]"]');
+    const assetField = document.querySelector('select[name="withdrawal[asset]"]');
+    const savingsField = document.querySelector('select[name="withdrawal[savingsAccount]"]');
+    const taxField = document.querySelector('input[name="withdrawal[taxAmount]"]');
+    const feesField = document.querySelector('input[name="withdrawal[fees]"]');
+
+    function updateFieldsVisibility() {
+        const selectedType = typeField.value;
+        
+        // Show/hide tax field for certain types
+        if (selectedType === 'tax_payment' || selectedType === 'retirement') {
+            taxField.closest('.form-group').style.display = 'block';
+        } else {
+            taxField.closest('.form-group').style.display = 'none';
+        }
+        
+        // Show/hide fees field for certain types
+        if (selectedType === 'rebalancing' || selectedType === 'investment') {
+            feesField.closest('.form-group').style.display = 'block';
+        } else {
+            feesField.closest('.form-group').style.display = 'none';
+        }
+    }
+
+    if (typeField) {
+        typeField.addEventListener('change', updateFieldsVisibility);
+        updateFieldsVisibility(); // Initial call
+    }
+
+    // Mutual exclusivity between asset and savings account
+    if (assetField && savingsField) {
+        assetField.addEventListener('change', function() {
+            if (this.value) {
+                savingsField.value = '';
+            }
+        });
+        
+        savingsField.addEventListener('change', function() {
+            if (this.value) {
+                assetField.value = '';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

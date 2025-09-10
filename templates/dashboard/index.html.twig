@@ -1,7 +1,7 @@
 {% extends 'dashboard/layout.html.twig' %}
 
-{% block page_title %}Tableau de bord{% endblock %}
-{% block page_subtitle %}Vue d'ensemble de votre portefeuille crypto{% endblock %}
+{% block page_title %}FolioZen - Tableau de bord{% endblock %}
+{% block page_subtitle %}Vue d'ensemble de tous vos investissements{% endblock %}
 
 {% block dashboard_content %}
 <!-- Stats Overview -->
@@ -36,15 +36,15 @@
     
     <div class="stat-card">
         <div class="stat-header">
-            <div class="stat-title">Nombre de cryptos</div>
+            <div class="stat-title">Total des actifs</div>
             <div class="stat-icon warning">
-                <i class="fas fa-coins"></i>
+                <i class="fas fa-chart-pie"></i>
             </div>
         </div>
-        <div class="stat-value">{{ stats.crypto_count }}</div>
+        <div class="stat-value">{{ total_assets + stats.crypto_count }}</div>
         <div class="stat-change neutral">
             <i class="fas fa-minus"></i>
-            En portefeuille
+            Tous types confondus
         </div>
     </div>
     
@@ -248,6 +248,162 @@
     </div>
 </div>
 
+<!-- New Investment Types Overview -->
+<div class="row">
+    <!-- Assets Overview -->
+    <div class="col-lg-6 mb-4">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-pie me-2"></i>
+                    Actifs récents
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_asset_index') }}" class="btn btn-outline-primary btn-sm">
+                        Voir tout
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if assets|length > 0 %}
+                    {% for asset in assets|slice(0, 3) %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="asset-icon me-3">
+                                <i class="fas fa-{{ get_asset_type_icon(asset.type) }}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="asset-name">{{ asset.name }}</div>
+                                <div class="asset-symbol text-muted">{{ asset.symbol }}</div>
+                            </div>
+                            <div class="asset-status">
+                                {% if asset.isActive %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if assets|length > 3 %}
+                        <div class="text-center">
+                            <a href="{{ path('app_asset_index') }}" class="btn btn-outline-primary btn-sm">
+                                Voir les {{ assets|length - 3 }} autres
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted mb-2">Aucun actif enregistré</p>
+                        <a href="{{ path('app_asset_new') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>
+                            Ajouter un actif
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Savings Accounts Overview -->
+    <div class="col-lg-6 mb-4">
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-piggy-bank me-2"></i>
+                    Comptes d'épargne
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_savings_account_index') }}" class="btn btn-outline-primary btn-sm">
+                        Voir tout
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if savings_accounts|length > 0 %}
+                    {% for account in savings_accounts|slice(0, 3) %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="savings-icon me-3">
+                                <i class="fas fa-{{ get_savings_account_type_icon(account.type) }}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="savings-name">{{ account.name }}</div>
+                                <div class="savings-type text-muted">{{ get_savings_account_type_label(account.type) }}</div>
+                            </div>
+                            <div class="savings-balance">
+                                {% if account.currentBalance %}
+                                    <div class="balance-amount">{{ account.currentBalance|number_format(0, '.', ' ') }}€</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if savings_accounts|length > 3 %}
+                        <div class="text-center">
+                            <a href="{{ path('app_savings_account_index') }}" class="btn btn-outline-primary btn-sm">
+                                Voir les {{ savings_accounts|length - 3 }} autres
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-3">
+                        <p class="text-muted mb-2">Aucun compte d'épargne</p>
+                        <a href="{{ path('app_savings_account_new') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>
+                            Ajouter un compte
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Withdrawals -->
+<div class="content-card mb-4">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-money-bill-wave me-2"></i>
+            Retraits récents
+        </h3>
+        <div class="card-actions">
+            <a href="{{ path('app_withdrawal_index') }}" class="btn btn-outline-primary btn-sm">
+                Voir tout
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if recent_withdrawals|length > 0 %}
+            <div class="row">
+                {% for withdrawal in recent_withdrawals|slice(0, 4) %}
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <div class="withdrawal-item">
+                            <div class="withdrawal-header">
+                                <div class="withdrawal-amount">{{ withdrawal.amount|number_format(0, '.', ' ') }}€</div>
+                                <div class="withdrawal-status">
+                                    <span class="badge bg-{{ get_withdrawal_status_color(withdrawal.status) }}">
+                                        {{ withdrawal.getStatusLabel() }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="withdrawal-details">
+                                <div class="withdrawal-type">{{ withdrawal.getTypeLabel() }}</div>
+                                <div class="withdrawal-date">{{ withdrawal.date|date('d/m/Y') }}</div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-3">
+                <p class="text-muted mb-2">Aucun retrait enregistré</p>
+                <a href="{{ path('app_withdrawal_new') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>
+                    Enregistrer un retrait
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Performance Chart -->
 <div class="content-card">
     <div class="card-header">
@@ -377,4 +533,89 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<style>
+/* New Dashboard Styles */
+.asset-icon,
+.savings-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.asset-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.savings-icon {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.asset-name,
+.savings-name {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.asset-symbol,
+.savings-type {
+    font-size: 0.85rem;
+}
+
+.balance-amount {
+    font-weight: 600;
+    color: var(--text-dark);
+    text-align: right;
+}
+
+.withdrawal-item {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    transition: all 0.3s ease;
+}
+
+.withdrawal-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.withdrawal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.withdrawal-amount {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.withdrawal-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.withdrawal-type {
+    font-size: 0.85rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.withdrawal-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+</style>
 {% endblock %}

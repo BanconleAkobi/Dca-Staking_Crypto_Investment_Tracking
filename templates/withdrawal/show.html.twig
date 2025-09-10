@@ -1,0 +1,357 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}Retrait #{{ withdrawal.id }}{% endblock %}
+{% block page_subtitle %}{{ withdrawal.getTypeLabel() }} - {{ withdrawal.date|date('d/m/Y') }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Withdrawal Details -->
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-{{ get_withdrawal_type_icon(withdrawal.type) }} me-2"></i>
+                    Détails du retrait
+                </h3>
+                <div class="card-actions">
+                    <a href="{{ path('app_withdrawal_edit', {'id': withdrawal.id}) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i>
+                        Modifier
+                    </a>
+                    <form method="post" action="{{ path('app_withdrawal_delete', {'id': withdrawal.id}) }}" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce retrait ?')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ withdrawal.id) }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash me-1"></i>
+                            Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="info-group">
+                            <span class="info-label">Montant</span>
+                            <div class="info-value">
+                                <span class="amount-display">{{ withdrawal.amount|number_format(2, '.', ' ') }}€</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-group">
+                            <span class="info-label">Date</span>
+                            <div class="info-value">
+                                <i class="fas fa-calendar me-2"></i>
+                                {{ withdrawal.date|date('d/m/Y') }}
+                            </div>
+                        </div>
+                        
+                        <div class="info-group">
+                            <span class="info-label">Type</span>
+                            <div class="info-value">
+                                <i class="fas fa-{{ get_withdrawal_type_icon(withdrawal.type) }} me-2"></i>
+                                {{ withdrawal.getTypeLabel() }}
+                            </div>
+                        </div>
+                        
+                        <div class="info-group">
+                            <span class="info-label">Statut</span>
+                            <div class="info-value">
+                                <span class="badge bg-{{ get_withdrawal_status_color(withdrawal.status) }}">
+                                    <i class="fas fa-{{ get_withdrawal_status_icon(withdrawal.status) }} me-1"></i>
+                                    {{ withdrawal.getStatusLabel() }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        {% if withdrawal.asset %}
+                        <div class="info-group">
+                            <span class="info-label">Actif source</span>
+                            <div class="info-value">
+                                <i class="fas fa-chart-pie me-2"></i>
+                                <a href="{{ path('app_asset_show', {'id': withdrawal.asset.id}) }}">
+                                    {{ withdrawal.asset.name }} ({{ withdrawal.asset.symbol }})
+                                </a>
+                            </div>
+                        </div>
+                        {% elseif withdrawal.savingsAccount %}
+                        <div class="info-group">
+                            <span class="info-label">Compte source</span>
+                            <div class="info-value">
+                                <i class="fas fa-piggy-bank me-2"></i>
+                                <a href="{{ path('app_savings_account_show', {'id': withdrawal.savingsAccount.id}) }}">
+                                    {{ withdrawal.savingsAccount.name }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if withdrawal.taxAmount %}
+                        <div class="info-group">
+                            <span class="info-label">Montant des impôts</span>
+                            <div class="info-value">
+                                <i class="fas fa-receipt me-2"></i>
+                                {{ withdrawal.taxAmount|number_format(2, '.', ' ') }}€
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if withdrawal.fees %}
+                        <div class="info-group">
+                            <span class="info-label">Frais</span>
+                            <div class="info-value">
+                                <i class="fas fa-percentage me-2"></i>
+                                {{ withdrawal.fees|number_format(2, '.', ' ') }}€
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if withdrawal.reference %}
+                        <div class="info-group">
+                            <span class="info-label">Référence</span>
+                            <div class="info-value">
+                                <code>{{ withdrawal.reference }}</code>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if withdrawal.reason %}
+                <div class="info-group">
+                    <span class="info-label">Raison</span>
+                    <div class="info-value">{{ withdrawal.reason }}</div>
+                </div>
+                {% endif %}
+                
+                {% if withdrawal.description %}
+                <div class="info-group">
+                    <span class="info-label">Description</span>
+                    <div class="info-value">{{ withdrawal.description|nl2br }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Financial Summary -->
+        <div class="content-card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-calculator me-2"></i>
+                    Résumé financier
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="financial-item">
+                            <div class="financial-label">Montant brut</div>
+                            <div class="financial-value primary">{{ withdrawal.amount|number_format(2, '.', ' ') }}€</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="financial-item">
+                            <div class="financial-label">Impôts</div>
+                            <div class="financial-value danger">-{{ (withdrawal.taxAmount ?? 0)|number_format(2, '.', ' ') }}€</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="financial-item">
+                            <div class="financial-label">Frais</div>
+                            <div class="financial-value warning">-{{ (withdrawal.fees ?? 0)|number_format(2, '.', ' ') }}€</div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="financial-item total">
+                            <div class="financial-label">Montant net</div>
+                            <div class="financial-value success">
+                                {{ (withdrawal.amount - (withdrawal.taxAmount ?? 0) - (withdrawal.fees ?? 0))|number_format(2, '.', ' ') }}€
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-bolt me-2"></i>
+                    Actions rapides
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <a href="{{ path('app_withdrawal_edit', {'id': withdrawal.id}) }}" class="quick-action">
+                        <i class="fas fa-edit"></i>
+                        <span>Modifier le retrait</span>
+                    </a>
+                    <a href="{{ path('app_withdrawal_index') }}" class="quick-action">
+                        <i class="fas fa-list"></i>
+                        <span>Voir tous les retraits</span>
+                    </a>
+                    {% if withdrawal.asset %}
+                    <a href="{{ path('app_asset_show', {'id': withdrawal.asset.id}) }}" class="quick-action">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Voir l'actif source</span>
+                    </a>
+                    {% elseif withdrawal.savingsAccount %}
+                    <a href="{{ path('app_savings_account_show', {'id': withdrawal.savingsAccount.id}) }}" class="quick-action">
+                        <i class="fas fa-piggy-bank"></i>
+                        <span>Voir le compte source</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Withdrawal Timeline -->
+        <div class="content-card">
+            <div class="card-header">
+                <h5 class="card-title">
+                    <i class="fas fa-history me-2"></i>
+                    Historique
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker success"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Retrait créé</div>
+                            <div class="timeline-date">{{ withdrawal.createdAt|date('d/m/Y H:i') }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if withdrawal.updatedAt and withdrawal.updatedAt != withdrawal.createdAt %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker info"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Dernière modification</div>
+                            <div class="timeline-date">{{ withdrawal.updatedAt|date('d/m/Y H:i') }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.amount-display {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.financial-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+}
+
+.financial-item.total {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.financial-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.financial-item.total .financial-label {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.financial-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.financial-value.primary {
+    color: #667eea;
+}
+
+.financial-value.success {
+    color: #28a745;
+}
+
+.financial-value.danger {
+    color: #dc3545;
+}
+
+.financial-value.warning {
+    color: #ffc107;
+}
+
+.financial-item.total .financial-value {
+    color: white;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2rem;
+    top: 0.25rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+
+.timeline-marker.success {
+    background: #28a745;
+}
+
+.timeline-marker.info {
+    background: #17a2b8;
+}
+
+.timeline-content {
+    padding-left: 1rem;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.25rem;
+}
+
+.timeline-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+</style>
+{% endblock %}

@@ -4,6 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    # Stripe Payment Links
+    stripe.payment_link.pro: 'https://buy.stripe.com/test_5kQ9AT0a1e5ndTr0Xd8so00'
+    stripe.payment_link.enterprise: 'https://buy.stripe.com/test_bJe8wPe0Rgdv5mVcFV8so01'
 
 services:
     # default configuration for services in *this* file
@@ -22,3 +25,13 @@ services:
     App\Service\StripeService:
         arguments:
             $stripeSecretKey: '%env(STRIPE_SECRET_KEY)%'
+            $parameterBag: '@parameter_bag'
+    
+    App\Service\InvoiceEmailService:
+        arguments:
+            $mailer: '@mailer'
+            $twig: '@twig'
+    
+    # Twig Extensions
+    App\Twig\AssetExtension:
+        tags: ['twig.extension']
