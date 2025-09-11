@@ -1,0 +1,168 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}{{ page_subtitle }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="content-card">
+            <div class="card-header">
+                <h1><i class="fas fa-shield-alt me-2"></i>{{ page_title }}</h1>
+                <p class="text-muted mb-0">{{ page_subtitle }}</p>
+            </div>
+            <div class="card-body">
+                        <div class="legal-content">
+                            <p class="text-muted mb-4">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                Dernière mise à jour : {{ "now"|date("d/m/Y") }}
+                            </p>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-info-circle text-primary me-2"></i>
+                                    1. Collecte des données
+                                </h2>
+                                <p>FolioZen collecte et traite vos données personnelles dans le respect de votre vie privée et conformément au Règlement Général sur la Protection des Données (RGPD).</p>
+                                
+                                <h3 class="h5 mt-4 mb-3">Données collectées :</h3>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Informations d'identification (nom, email, pseudo)</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Données de connexion et d'authentification</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Données financières (investissements, transactions)</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Données de navigation et d'utilisation</li>
+                                </ul>
+                            </section>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-cogs text-primary me-2"></i>
+                                    2. Utilisation des données
+                                </h2>
+                                <p>Vos données sont utilisées exclusivement pour :</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Fournir et améliorer nos services</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Gérer votre compte et vos investissements</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Assurer la sécurité de la plateforme</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Respecter nos obligations légales</li>
+                                </ul>
+                            </section>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-share-alt text-primary me-2"></i>
+                                    3. Partage des données
+                                </h2>
+                                <p>Nous ne vendons jamais vos données personnelles. Elles peuvent être partagées uniquement :</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Avec votre consentement explicite</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Pour respecter une obligation légale</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Avec nos prestataires de services (sous contrat de confidentialité)</li>
+                                </ul>
+                            </section>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-lock text-primary me-2"></i>
+                                    4. Sécurité des données
+                                </h2>
+                                <p>Nous mettons en place des mesures de sécurité strictes :</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Chiffrement des données sensibles</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Accès restreint aux données</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Surveillance continue de la sécurité</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Sauvegardes régulières et sécurisées</li>
+                                </ul>
+                            </section>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-user-cog text-primary me-2"></i>
+                                    5. Vos droits
+                                </h2>
+                                <p>Conformément au RGPD, vous disposez des droits suivants :</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-eye text-info me-2"></i><strong>Droit d'accès</strong> - Consulter vos données</li>
+                                            <li><i class="fas fa-edit text-warning me-2"></i><strong>Droit de rectification</strong> - Corriger vos données</li>
+                                            <li><i class="fas fa-trash text-danger me-2"></i><strong>Droit d'effacement</strong> - Supprimer vos données</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-download text-primary me-2"></i><strong>Droit de portabilité</strong> - Récupérer vos données</li>
+                                            <li><i class="fas fa-ban text-secondary me-2"></i><strong>Droit d'opposition</strong> - S'opposer au traitement</li>
+                                            <li><i class="fas fa-pause text-info me-2"></i><strong>Droit de limitation</strong> - Limiter le traitement</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-clock text-primary me-2"></i>
+                                    6. Conservation des données
+                                </h2>
+                                <p>Vos données sont conservées :</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Pendant la durée de votre abonnement</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>3 ans après la fermeture de votre compte (obligations légales)</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Selon les durées légales applicables</li>
+                                </ul>
+                            </section>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-cookie-bite text-primary me-2"></i>
+                                    7. Cookies et technologies similaires
+                                </h2>
+                                <p>Nous utilisons des cookies pour :</p>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success me-2"></i>Assurer le fonctionnement de la plateforme</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Mémoriser vos préférences</li>
+                                    <li><i class="fas fa-check text-success me-2"></i>Améliorer votre expérience utilisateur</li>
+                                </ul>
+                                <p class="mt-3">Vous pouvez gérer vos préférences de cookies dans les paramètres de votre navigateur.</p>
+                            </section>
+
+                            <section class="mb-5">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-envelope text-primary me-2"></i>
+                                    8. Contact et réclamations
+                                </h2>
+                                <p>Pour toute question concernant vos données personnelles :</p>
+                                <div class="alert alert-info">
+                                    <h5><i class="fas fa-envelope me-2"></i>Contact DPO</h5>
+                                    <p class="mb-2"><strong>Email :</strong> privacy@foliozen.com</p>
+                                    <p class="mb-0"><strong>Adresse :</strong> FolioZen, Service DPO, 123 Rue de la Finance, 75001 Paris, France</p>
+                                </div>
+                                
+                                <div class="alert alert-warning">
+                                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Autorité de contrôle</h5>
+                                    <p class="mb-0">Vous pouvez également saisir la CNIL (Commission Nationale de l'Informatique et des Libertés) si vous estimez que vos droits ne sont pas respectés.</p>
+                                </div>
+                            </section>
+
+                            <section class="mb-4">
+                                <h2 class="h4 mb-3">
+                                    <i class="fas fa-sync-alt text-primary me-2"></i>
+                                    9. Modifications de la politique
+                                </h2>
+                                <p>Cette politique de confidentialité peut être modifiée. Nous vous informerons de tout changement important par email ou via la plateforme.</p>
+                            </section>
+
+                            <div class="text-center mt-5">
+                                <a href="{{ path('app_legal_contact') }}" class="btn btn-primary-modern btn-modern me-3">
+                                    <i class="fas fa-envelope me-2"></i>Nous contacter
+                                </a>
+                                <a href="{{ path('app_legal_terms') }}" class="btn btn-secondary-modern btn-modern">
+                                    <i class="fas fa-file-contract me-2"></i>Conditions d'utilisation
+                                </a>
+                            </div>
+                        </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

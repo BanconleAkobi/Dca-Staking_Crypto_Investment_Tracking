@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/assets')]
+#[Route('/my-assets')]
 #[IsGranted('ROLE_USER')]
 class AssetController extends AbstractController
 {
@@ -28,7 +28,6 @@ class AssetController extends AbstractController
     {
         $user = $this->getUser();
         $assets = $this->assetRepository->findByUser($user);
-
         // Grouper les actifs par type
         $assetsByType = [];
         foreach ($assets as $asset) {
