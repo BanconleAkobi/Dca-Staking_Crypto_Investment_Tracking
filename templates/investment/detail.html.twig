@@ -1,0 +1,487 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}{{ investment.name }} - Détail Investissement{% endblock %}
+
+{% block page_title %}{{ investment.name }}{% endblock %}
+{% block page_subtitle %}{{ investment.symbol ?? investment.bank_name ?? '' }} - Détail complet de l'investissement{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- En-tête de l'investissement -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card investment-header-card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="investment-title">
+                                <h2 class="investment-name">{{ investment.name }}</h2>
+                                <div class="investment-meta">
+                                    <span class="investment-symbol">{{ investment.symbol ?? investment.bank_name ?? '' }}</span>
+                                    <span class="badge bg-{{ investment.type == 'crypto' ? 'warning' : (investment.type == 'asset' ? 'info' : 'success') }}">
+                                        {{ investment.type|capitalize }}
+                                    </span>
+                                    {% if investment.category %}
+                                        <span class="badge bg-secondary">{{ investment.category|capitalize }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="investment-status">
+                                <span class="badge bg-{{ investment.status == 'active' ? 'success' : 'secondary' }} fs-6">
+                                    <i class="fas fa-{{ investment.status == 'active' ? 'check-circle' : 'pause-circle' }} me-1"></i>
+                                    {{ investment.status == 'active' ? 'Actif' : 'Inactif' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Métriques principales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <div class="metric-icon bg-primary">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <h4 class="metric-value">${{ investment.total_invested|number_format(2) }}</h4>
+                    <p class="metric-label">Investissement Total</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <div class="metric-icon bg-success">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 class="metric-value">${{ investment.current_value|number_format(2) }}</h4>
+                    <p class="metric-label">Valeur Actuelle</p>
+                </div>
+            </div>
+        </div>
+        
+        {% set gain = investment.current_value - investment.total_invested %}
+        {% set gain_percent = investment.total_invested > 0 ? (gain / investment.total_invested) * 100 : 0 %}
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <div class="metric-icon {{ gain >= 0 ? 'bg-success' : 'bg-danger' }}">
+                        <i class="fas fa-{{ gain >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>
+                    </div>
+                    <h4 class="metric-value {{ gain >= 0 ? 'text-success' : 'text-danger' }}">
+                        {{ gain >= 0 ? '+' : '' }}${{ gain|number_format(2) }}
+                    </h4>
+                    <p class="metric-label">Gain/Perte</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body text-center">
+                    <div class="metric-icon bg-info">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <h4 class="metric-value {{ gain_percent >= 0 ? 'text-success' : 'text-danger' }}">
+                        {{ gain_percent >= 0 ? '+' : '' }}{{ gain_percent|number_format(2) }}%
+                    </h4>
+                    <p class="metric-label">Performance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Graphique de performance -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Évolution de la Performance
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicateurs de santé -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-heartbeat me-2"></i>Indicateurs de Santé
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for indicator, value in investment.health_indicators %}
+                        <div class="health-indicator">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="indicator-label">{{ indicator|replace({'_': ' '})|title }}</span>
+                                <span class="indicator-value badge bg-{{ value == 'excellent' ? 'success' : (value == 'good' ? 'info' : (value == 'fair' ? 'warning' : 'danger')) }}">
+                                    {{ value|title }}
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                {% set progress = value == 'excellent' ? 100 : (value == 'good' ? 75 : (value == 'fair' ? 50 : 25)) %}
+                                <div class="progress-bar bg-{{ value == 'excellent' ? 'success' : (value == 'good' ? 'info' : (value == 'fair' ? 'warning' : 'danger')) }}" 
+                                     style="width: {{ progress }}%"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Échéancier de paiements -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Échéancier de Paiements
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if investment.payment_schedule %}
+                        {% for payment in investment.payment_schedule %}
+                            <div class="payment-schedule-item">
+                                <div class="payment-date">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ payment.date|date('d/m/Y') }}
+                                </div>
+                                <div class="payment-details">
+                                    <div class="payment-amount">${{ payment.amount|number_format(2) }}</div>
+                                    <div class="payment-type">
+                                        <span class="badge bg-{{ payment.type == 'dividend' ? 'success' : 'info' }}">
+                                            {{ payment.type|capitalize }}
+                                        </span>
+                                    </div>
+                                    <div class="payment-status">
+                                        <span class="badge bg-{{ payment.status == 'pending' ? 'warning' : 'success' }}">
+                                            {{ payment.status|capitalize }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">Aucun paiement prévu</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Documents
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if investment.documents %}
+                        {% for document in investment.documents %}
+                            <div class="document-item">
+                                <div class="document-icon">
+                                    <i class="fas fa-file-pdf text-danger"></i>
+                                </div>
+                                <div class="document-details">
+                                    <div class="document-name">{{ document.name }}</div>
+                                    <div class="document-meta">
+                                        <span class="document-date">{{ document.date|date('d/m/Y') }}</span>
+                                        <span class="document-size">{{ document.size }}</span>
+                                    </div>
+                                </div>
+                                <div class="document-actions">
+                                    <a href="{{ document.url }}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">Aucun document disponible</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historique des transactions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-history me-2"></i>Historique des Transactions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if investment.transactions %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Quantité</th>
+                                        <th>Prix Unitaire</th>
+                                        <th>Total</th>
+                                        <th>Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in investment.transactions %}
+                                        <tr>
+                                            <td>{{ transaction.date|date('d/m/Y') }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ transaction.type == 'buy' ? 'success' : 'danger' }}">
+                                                    {{ transaction.type|capitalize }}
+                                                </span>
+                                            </td>
+                                            <td>{{ transaction.quantity|number_format(4) }}</td>
+                                            <td>${{ transaction.unitPriceUsd|number_format(2) }}</td>
+                                            <td>${{ (transaction.quantity * transaction.unitPriceUsd)|number_format(2) }}</td>
+                                            <td>{{ transaction.note ?? '-' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Aucune transaction enregistrée</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.investment-header-card {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 15px;
+}
+
+.investment-name {
+    color: white;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.investment-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.investment-symbol {
+    color: rgba(255,255,255,0.8);
+    font-size: 16px;
+}
+
+.metric-card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+    border-radius: 15px;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    color: white;
+    font-size: 24px;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.health-indicator {
+    margin-bottom: 20px;
+}
+
+.indicator-label {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.payment-schedule-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.payment-schedule-item:last-child {
+    border-bottom: none;
+}
+
+.payment-date {
+    width: 100px;
+    text-align: center;
+    color: #667eea;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.payment-details {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.payment-amount {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.document-item:last-child {
+    border-bottom: none;
+}
+
+.document-icon {
+    width: 40px;
+    text-align: center;
+    font-size: 20px;
+}
+
+.document-details {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.document-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.document-meta {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.document-meta span {
+    margin-right: 15px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique de performance
+    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+    const performanceData = {{ investment.performance_history|json_encode|raw }};
+    
+    new Chart(performanceCtx, {
+        type: 'line',
+        data: {
+            labels: performanceData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' });
+            }),
+            datasets: [{
+                label: 'Valeur',
+                data: performanceData.map(item => item.value),
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: false,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

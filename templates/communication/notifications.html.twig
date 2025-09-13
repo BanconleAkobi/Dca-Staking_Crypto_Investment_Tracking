@@ -1,0 +1,420 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}Notifications - Crypto Investment Tracker{% endblock %}
+
+{% block page_title %}Notifications{% endblock %}
+{% block page_subtitle %}Restez informé de tous les événements importants{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Actions rapides -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h6 class="mb-0">
+                                <i class="fas fa-bell me-2"></i>
+                                {{ notifications|filter(n => not n.read)|length }} notifications non lues
+                            </h6>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary" onclick="markAllAsRead()">
+                                    <i class="fas fa-check-double me-2"></i>Tout marquer comme lu
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="refreshNotifications()">
+                                    <i class="fas fa-refresh me-2"></i>Actualiser
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">Tous les types</option>
+                                <option value="payment">Paiements</option>
+                                <option value="assembly">Assemblées</option>
+                                <option value="document">Documents</option>
+                                <option value="alert">Alertes</option>
+                                <option value="system">Système</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Tous les statuts</option>
+                                <option value="unread">Non lues</option>
+                                <option value="read">Lues</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="priorityFilter">
+                                <option value="">Toutes les priorités</option>
+                                <option value="high">Haute</option>
+                                <option value="medium">Moyenne</option>
+                                <option value="low">Basse</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" onclick="resetFilters()">
+                                <i class="fas fa-refresh me-2"></i>Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des notifications -->
+    <div class="row" id="notificationsList">
+        {% for notification in notifications %}
+            <div class="col-12 mb-3 notification-item" 
+                 data-type="{{ notification.type }}" 
+                 data-status="{{ notification.isRead ? 'read' : 'unread' }}"
+                 data-priority="{{ notification.priority }}">
+                <div class="card notification-card {{ notification.isRead ? '' : 'unread' }}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-auto">
+                                <div class="notification-icon bg-{{ notification.color }}">
+                                    <i class="{{ notification.icon }}"></i>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="notification-content">
+                                    <div class="notification-header">
+                                        <h6 class="notification-title mb-1">{{ notification.title }}</h6>
+                        <div class="notification-meta">
+                            <span class="notification-date">
+                                <i class="fas fa-clock me-1"></i>
+                                {{ notification.createdAt|date('d/m/Y à H:i') }}
+                            </span>
+                            <span class="notification-priority badge bg-{{ notification.priority == 'high' ? 'danger' : (notification.priority == 'medium' ? 'warning' : 'secondary') }}">
+                                {{ notification.priority|capitalize }}
+                            </span>
+                        </div>
+                                    </div>
+                                    <p class="notification-message mb-0">{{ notification.message }}</p>
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <div class="notification-actions">
+                                    {% if not notification.isRead %}
+                                        <button class="btn btn-outline-primary btn-sm" onclick="markAsRead({{ notification.id }})">
+                                            <i class="fas fa-check me-1"></i>Marquer comme lu
+                                        </button>
+                                    {% endif %}
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="viewNotificationDetails({{ notification.id }})">
+                                        <i class="fas fa-eye me-1"></i>Détails
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Message si aucune notification -->
+    {% if notifications is empty %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucune notification</h5>
+                        <p class="text-muted">Vous n'avez aucune notification pour le moment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Statistiques -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h4 class="stat-number">{{ notifications|length }}</h4>
+                    <p class="stat-label">Total</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-bell-slash"></i>
+                    </div>
+                    <h4 class="stat-number">{{ notifications|filter(n => not n.isRead)|length }}</h4>
+                    <p class="stat-label">Non Lues</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h4 class="stat-number">{{ notifications|filter(n => n.priority == 'high')|length }}</h4>
+                    <p class="stat-label">Haute Priorité</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h4 class="stat-number">{{ notifications|filter(n => n.type == 'payment')|length }}</h4>
+                    <p class="stat-label">Paiements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.notification-card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 15px;
+}
+
+.notification-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.notification-card.unread {
+    border-left: 4px solid #667eea;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+}
+
+.notification-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.notification-meta {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 8px;
+}
+
+.notification-date {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.notification-message {
+    color: #6c757d;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.notification-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 48px;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.badge {
+    font-size: 10px;
+    padding: 4px 8px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeFilter = document.getElementById('typeFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const notificationItems = document.querySelectorAll('.notification-item');
+
+    function filterNotifications() {
+        const selectedType = typeFilter.value;
+        const selectedStatus = statusFilter.value;
+        const selectedPriority = priorityFilter.value;
+
+        notificationItems.forEach(item => {
+            const type = item.dataset.type;
+            const status = item.dataset.status;
+            const priority = item.dataset.priority;
+
+            const matchesType = !selectedType || type === selectedType;
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+            const matchesPriority = !selectedPriority || priority === selectedPriority;
+
+            if (matchesType && matchesStatus && matchesPriority) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    typeFilter.addEventListener('change', filterNotifications);
+    statusFilter.addEventListener('change', filterNotifications);
+    priorityFilter.addEventListener('change', filterNotifications);
+});
+
+function resetFilters() {
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('priorityFilter').value = '';
+    
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.style.display = 'block';
+    });
+}
+
+function markAsRead(notificationId) {
+    fetch(`{{ path('app_communication_mark_notification_read', {'id': '__ID__'}) }}`.replace('__ID__', notificationId), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour l'interface
+            const notificationCard = event.target.closest('.notification-card');
+            notificationCard.classList.remove('unread');
+            
+            // Masquer le bouton "Marquer comme lu"
+            const markAsReadBtn = notificationCard.querySelector('button[onclick*="markAsRead"]');
+            if (markAsReadBtn) {
+                markAsReadBtn.style.display = 'none';
+            }
+            
+            // Mettre à jour le compteur
+            updateUnreadCount();
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour de la notification');
+    });
+}
+
+function markAllAsRead() {
+    fetch('{{ path('app_communication_mark_all_notifications_read') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mettre à jour toutes les notifications
+            document.querySelectorAll('.notification-card').forEach(card => {
+                card.classList.remove('unread');
+            });
+            
+            // Masquer tous les boutons "Marquer comme lu"
+            document.querySelectorAll('button[onclick*="markAsRead"]').forEach(btn => {
+                btn.style.display = 'none';
+            });
+            
+            // Mettre à jour le compteur
+            updateUnreadCount();
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour des notifications');
+    });
+}
+
+function updateUnreadCount() {
+    const unreadCount = document.querySelectorAll('.notification-card.unread').length;
+    const countElement = document.querySelector('h6');
+    if (countElement) {
+        countElement.innerHTML = `<i class="fas fa-bell me-2"></i>${unreadCount} notifications non lues`;
+    }
+}
+
+function refreshNotifications() {
+    location.reload();
+}
+
+function viewNotificationDetails(notificationId) {
+    // Rediriger vers les détails de la notification
+    alert('Redirection vers les détails de la notification...');
+}
+</script>
+{% endblock %}

@@ -130,8 +130,8 @@
 
 <style>
 .asset-card {
-    background: var(--white);
-    border: 1px solid #e9ecef;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
     transition: all 0.3s ease;
@@ -157,13 +157,13 @@
 .asset-symbol {
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: var(--text-primary);
     margin-bottom: 0.25rem;
 }
 
 .asset-name {
     font-size: 0.9rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     margin-bottom: 0;
 }
 
@@ -173,21 +173,21 @@
 
 .asset-type {
     font-size: 0.85rem;
-    color: #667eea;
+    color: var(--primary-color);
     font-weight: 600;
     margin-bottom: 0.25rem;
 }
 
 .asset-category {
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     margin-bottom: 0.25rem;
 }
 
 .asset-price {
     font-size: 1.1rem;
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .asset-actions {
@@ -202,6 +202,7 @@
 {% endblock %}
 
 {% block javascripts %}
+{{ parent() }}
 <script>
 // Fonction pour obtenir l'icône selon le type d'actif
 function getAssetTypeIcon(type) {

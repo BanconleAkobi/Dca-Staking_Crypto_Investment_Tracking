@@ -1,0 +1,540 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}Documents - Crypto Investment Tracker{% endblock %}
+
+{% block page_title %}Documents{% endblock %}
+{% block page_subtitle %}Accédez à tous vos documents d'investissement{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Filtres et recherche -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Rechercher un document...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">Tous les types</option>
+                                <option value="subscription">Bulletin de souscription</option>
+                                <option value="tax">Attestation fiscale</option>
+                                <option value="report">Rapport</option>
+                                <option value="contract">Contrat</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select" id="investmentFilter">
+                                <option value="">Tous les investissements</option>
+                                {% for document in documents %}
+                                    {% if document.investment not in investmentOptions %}
+                                        {% set investmentOptions = investmentOptions|merge([document.investment]) %}
+                                    {% endif %}
+                                {% endfor %}
+                                {% for investment in investmentOptions %}
+                                    <option value="{{ investment }}">{{ investment }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary w-100" onclick="resetFilters()">
+                                <i class="fas fa-refresh me-2"></i>Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue des documents -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="view-toggle">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary active" onclick="switchView('grid')">
+                            <i class="fas fa-th me-2"></i>Grille
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" onclick="switchView('list')">
+                            <i class="fas fa-list me-2"></i>Liste
+                        </button>
+                    </div>
+                </div>
+                <div class="document-actions">
+                    <button class="btn btn-outline-secondary" onclick="downloadAll()">
+                        <i class="fas fa-download me-2"></i>Tout télécharger
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue grille -->
+    <div class="row" id="gridView">
+        {% for document in documents %}
+            <div class="col-lg-4 col-md-6 mb-4 document-card" 
+                 data-type="{{ document.type }}" 
+                 data-investment="{{ document.investment|lower }}"
+                 data-name="{{ document.name|lower }}">
+                <div class="card document-item">
+                    <div class="card-body">
+                        <div class="document-header">
+                            <div class="document-icon">
+                                <i class="fas fa-file-pdf text-danger"></i>
+                            </div>
+                            <div class="document-info">
+                                <h6 class="document-name">{{ document.name }}</h6>
+                                <p class="document-investment">{{ document.relatedEntity ?? 'Document général' }}</p>
+                            </div>
+                        </div>
+                        
+                            <div class="document-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar me-2"></i>
+                                    <span>{{ document.uploadedAt|date('d/m/Y') }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-weight me-2"></i>
+                                    <span>{{ document.formattedFileSize }}</span>
+                                </div>
+                            <div class="meta-item">
+                                <span class="badge bg-{{ document.type == 'subscription' ? 'primary' : (document.type == 'tax' ? 'success' : 'info') }}">
+                                    {{ document.type|capitalize }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="document-actions">
+                            <a href="{{ document.filePath }}" class="btn btn-primary btn-sm" target="_blank">
+                                <i class="fas fa-download me-1"></i>Télécharger
+                            </a>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="previewDocument('{{ document.filePath }}')">
+                                <i class="fas fa-eye me-1"></i>Aperçu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Vue liste -->
+    <div class="row d-none" id="listView">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="documentsTable">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Investissement</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Taille</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for document in documents %}
+                                    <tr class="document-row" 
+                                        data-type="{{ document.type }}" 
+                                        data-investment="{{ document.investment|lower }}"
+                                        data-name="{{ document.name|lower }}">
+                                        <td>
+                                            <div class="document-cell">
+                                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                                <span>{{ document.name }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ document.relatedEntity ?? 'Document général' }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ document.type == 'subscription' ? 'primary' : (document.type == 'tax' ? 'success' : 'info') }}">
+                                                {{ document.type|capitalize }}
+                                            </span>
+                                        </td>
+                                        <td>{{ document.uploadedAt|date('d/m/Y') }}</td>
+                                        <td>{{ document.formattedFileSize }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ document.filePath }}" class="btn btn-outline-primary" target="_blank">
+                                                    <i class="fas fa-download"></i>
+                                                </a>
+                                                <button class="btn btn-outline-secondary" onclick="previewDocument('{{ document.filePath }}')">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message si aucun document -->
+    {% if documents is empty %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucun document trouvé</h5>
+                        <p class="text-muted">Aucun document n'est disponible pour le moment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Statistiques -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h4 class="stat-number">{{ documents|length }}</h4>
+                    <p class="stat-label">Documents Total</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-signature"></i>
+                    </div>
+                    <h4 class="stat-number">{{ documents|filter(d => d.type == 'subscription')|length }}</h4>
+                    <p class="stat-label">Bulletins de Souscription</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h4 class="stat-number">{{ documents|filter(d => d.type == 'tax')|length }}</h4>
+                    <p class="stat-label">Attestations Fiscales</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h4 class="stat-number">{{ documents|filter(d => d.type == 'report')|length }}</h4>
+                    <p class="stat-label">Rapports</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'aperçu -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Aperçu du Document
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent">
+                    <div class="text-center py-5">
+                        <i class="fas fa-spinner fa-spin fa-2x text-muted mb-3"></i>
+                        <p class="text-muted">Chargement de l'aperçu...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                <button type="button" class="btn btn-primary" onclick="downloadFromPreview()">
+                    <i class="fas fa-download me-2"></i>Télécharger
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.document-item {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 15px;
+}
+
+.document-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.document-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.document-icon {
+    font-size: 32px;
+    margin-right: 15px;
+}
+
+.document-info {
+    flex: 1;
+}
+
+.document-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.document-investment {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.document-meta {
+    margin-bottom: 15px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.meta-item:last-child {
+    margin-bottom: 0;
+}
+
+.document-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.document-actions .btn {
+    flex: 1;
+}
+
+.document-cell {
+    display: flex;
+    align-items: center;
+}
+
+.stat-card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 48px;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #6c757d;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-group-sm .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    border: none;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+</style>
+
+<script>
+let currentView = 'grid';
+let currentPreviewUrl = '';
+
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const typeFilter = document.getElementById('typeFilter');
+    const investmentFilter = document.getElementById('investmentFilter');
+    const documentCards = document.querySelectorAll('.document-card');
+    const documentRows = document.querySelectorAll('.document-row');
+
+    function filterDocuments() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedType = typeFilter.value;
+        const selectedInvestment = investmentFilter.value;
+
+        documentCards.forEach(card => {
+            const name = card.dataset.name;
+            const type = card.dataset.type;
+            const investment = card.dataset.investment;
+
+            const matchesSearch = name.includes(searchTerm);
+            const matchesType = !selectedType || type === selectedType;
+            const matchesInvestment = !selectedInvestment || investment.includes(selectedInvestment.toLowerCase());
+
+            if (matchesSearch && matchesType && matchesInvestment) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        documentRows.forEach(row => {
+            const name = row.dataset.name;
+            const type = row.dataset.type;
+            const investment = row.dataset.investment;
+
+            const matchesSearch = name.includes(searchTerm);
+            const matchesType = !selectedType || type === selectedType;
+            const matchesInvestment = !selectedInvestment || investment.includes(selectedInvestment.toLowerCase());
+
+            if (matchesSearch && matchesType && matchesInvestment) {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterDocuments);
+    typeFilter.addEventListener('change', filterDocuments);
+    investmentFilter.addEventListener('change', filterDocuments);
+});
+
+function resetFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('typeFilter').value = '';
+    document.getElementById('investmentFilter').value = '';
+    
+    document.querySelectorAll('.document-card').forEach(card => {
+        card.style.display = 'block';
+    });
+    
+    document.querySelectorAll('.document-row').forEach(row => {
+        row.style.display = 'table-row';
+    });
+}
+
+function switchView(view) {
+    currentView = view;
+    
+    // Mettre à jour les boutons
+    document.querySelectorAll('.view-toggle .btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Basculer les vues
+    if (view === 'grid') {
+        document.getElementById('gridView').classList.remove('d-none');
+        document.getElementById('listView').classList.add('d-none');
+    } else {
+        document.getElementById('gridView').classList.add('d-none');
+        document.getElementById('listView').classList.remove('d-none');
+    }
+}
+
+function previewDocument(url) {
+    currentPreviewUrl = url;
+    
+    // Simuler le chargement de l'aperçu
+    const previewContent = `
+        <div class="text-center py-5">
+            <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+            <h5>Aperçu PDF</h5>
+            <p class="text-muted">L'aperçu du document sera affiché ici.</p>
+            <p class="text-muted">Pour l'instant, vous pouvez télécharger le document pour le consulter.</p>
+        </div>
+    `;
+    
+    document.getElementById('previewContent').innerHTML = previewContent;
+    
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    modal.show();
+}
+
+function downloadFromPreview() {
+    if (currentPreviewUrl) {
+        window.open(currentPreviewUrl, '_blank');
+    }
+}
+
+function downloadAll() {
+    // Simuler le téléchargement de tous les documents
+    alert('Téléchargement de tous les documents en cours...');
+}
+</script>
+{% endblock %}

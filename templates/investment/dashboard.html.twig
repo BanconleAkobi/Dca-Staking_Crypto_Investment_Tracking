@@ -1,0 +1,475 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}Tableau de Bord Investissement - Crypto Investment Tracker{% endblock %}
+
+{% block page_title %}Tableau de Bord Investissement{% endblock %}
+{% block page_subtitle %}Suivi complet de vos investissements et performance{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Métriques principales -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="metric-icon bg-primary">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Investissement Total</h6>
+                            <h3 class="metric-value">${{ dashboard_data.total_invested|number_format(2) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="metric-icon bg-success">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Valeur Actuelle</h6>
+                            <h3 class="metric-value">${{ dashboard_data.total_value|number_format(2) }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="metric-icon {{ dashboard_data.total_gain >= 0 ? 'bg-success' : 'bg-danger' }}">
+                            <i class="fas fa-{{ dashboard_data.total_gain >= 0 ? 'arrow-up' : 'arrow-down' }}"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Gain/Perte</h6>
+                            <h3 class="metric-value {{ dashboard_data.total_gain >= 0 ? 'text-success' : 'text-danger' }}">
+                                ${{ dashboard_data.total_gain|number_format(2) }}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card metric-card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="metric-icon bg-info">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h6 class="metric-label">Performance</h6>
+                            <h3 class="metric-value {{ dashboard_data.total_gain_percent >= 0 ? 'text-success' : 'text-danger' }}">
+                                {{ dashboard_data.total_gain_percent|number_format(2) }}%
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques d'investissement -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h4 class="stat-number">{{ dashboard_data.active_investments }}</h4>
+                    <p class="stat-label">Investissements Actifs</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4 class="stat-number">{{ dashboard_data.completed_investments }}</h4>
+                    <p class="stat-label">Investissements Terminés</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h4 class="stat-number">{{ dashboard_data.upcoming_payments|length }}</h4>
+                    <p class="stat-label">Paiements à Venir</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <h4 class="stat-number">{{ dashboard_data.health_status.excellent + dashboard_data.health_status.good }}</h4>
+                    <p class="stat-label">Entreprises en Bonne Santé</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Graphique d'évolution -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Évolution Mensuelle
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyEvolutionChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Paiements à venir -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-check me-2"></i>Paiements à Venir
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if dashboard_data.upcoming_payments %}
+                        {% for payment in dashboard_data.upcoming_payments %}
+                            <div class="payment-item">
+                                <div class="payment-date">
+                                    <i class="fas fa-calendar"></i>
+                                    {{ payment.date|date('d/m/Y') }}
+                                </div>
+                                <div class="payment-details">
+                                    <div class="payment-amount">${{ payment.amount|number_format(2) }}</div>
+                                    <div class="payment-investment">{{ payment.investment }}</div>
+                                    <div class="payment-type">
+                                        <span class="badge bg-{{ payment.type == 'dividend' ? 'success' : 'info' }}">
+                                            {{ payment.type|capitalize }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">Aucun paiement prévu</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Répartition par secteurs -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-2"></i>Répartition par Secteurs
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="sectorChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Répartition par types d'actifs -->
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-layer-group me-2"></i>Types d'Actifs
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="assetTypeChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-bolt me-2"></i>Actions Rapides
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{{ path('app_investment_investments') }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-list me-2"></i>Mes Investissements
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{{ path('app_investment_calendar') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-calendar-alt me-2"></i>Calendrier des Échéances
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{{ path('app_investment_assemblies') }}" class="btn btn-outline-warning w-100">
+                                <i class="fas fa-users me-2"></i>Assemblées Générales
+                            </a>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <a href="{{ path('app_investment_documents') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-file-alt me-2"></i>Documents
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.metric-card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+}
+
+.metric-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 24px;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.stat-card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 48px;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.payment-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.payment-item:last-child {
+    border-bottom: none;
+}
+
+.payment-date {
+    width: 80px;
+    text-align: center;
+    color: #667eea;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.payment-details {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.payment-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.payment-investment {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.card-title {
+    font-weight: 600;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Graphique d'évolution mensuelle
+    const monthlyCtx = document.getElementById('monthlyEvolutionChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: {{ dashboard_data.monthly_evolution|map(e => e.month)|json_encode|raw }},
+            datasets: [{
+                label: 'Investissements',
+                data: {{ dashboard_data.monthly_evolution|map(e => e.invested)|json_encode|raw }},
+                borderColor: '#667eea',
+                backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + value.toLocaleString();
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Graphique des secteurs
+    const sectorCtx = document.getElementById('sectorChart').getContext('2d');
+    new Chart(sectorCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {{ dashboard_data.sector_distribution|keys|json_encode|raw }},
+            datasets: [{
+                data: {{ dashboard_data.sector_distribution|map((value, key) => value)|json_encode|raw }},
+                backgroundColor: [
+                    '#667eea',
+                    '#764ba2',
+                    '#f093fb',
+                    '#f5576c',
+                    '#4facfe',
+                    '#00f2fe'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    // Graphique des types d'actifs
+    const assetTypeCtx = document.getElementById('assetTypeChart').getContext('2d');
+    new Chart(assetTypeCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ dashboard_data.asset_type_distribution|keys|json_encode|raw }},
+            datasets: [{
+                label: 'Nombre d\'actifs',
+                data: {{ dashboard_data.asset_type_distribution|map((value, key) => value)|json_encode|raw }},
+                backgroundColor: '#667eea',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

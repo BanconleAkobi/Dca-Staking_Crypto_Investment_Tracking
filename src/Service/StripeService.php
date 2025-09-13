@@ -146,6 +146,26 @@ class StripeService
         $this->entityManager->flush();
     }
 
+    public function updateUserSubscriptionWithStripeId(User $user, string $plan, string $stripeCustomerId, string $stripeSubscriptionId): void
+    {
+        $subscription = $user->getSubscription();
+        
+        if (!$subscription) {
+            $subscription = new UserSubscription();
+            $subscription->setUser($user);
+            $this->entityManager->persist($subscription);
+        }
+
+        $subscription->setPlan($plan);
+        $subscription->setStripeCustomerId($stripeCustomerId);
+        $subscription->setStripeSubscriptionId($stripeSubscriptionId);
+        $subscription->setStatus('active');
+        $subscription->setCurrentPeriodStart(new \DateTimeImmutable());
+        $subscription->setCurrentPeriodEnd((new \DateTimeImmutable())->modify('+1 month'));
+
+        $this->entityManager->flush();
+    }
+
     public function getInvoiceFromSession(string $sessionId): ?array
     {
         try {
@@ -238,6 +258,7 @@ class StripeService
                 'price' => 9.99,
                 'currency' => 'eur',
                 'interval' => 'month',
+                'price_id' => 'price_1S5uoBDWwd7rIwOP9h23pFRI', // Remplacez par votre vrai price_id Stripe
                 'payment_link' => $this->parameterBag->get('stripe.payment_link.pro'),
                 'features' => [
                     'Jusqu\'à 50 cryptomonnaies',
@@ -264,6 +285,7 @@ class StripeService
                 'price' => 29.99,
                 'currency' => 'eur',
                 'interval' => 'month',
+                'price_id' => 'price_1S5utwDWwd7rIwOPVytRE00d', // Remplacez par votre vrai price_id Stripe
                 'payment_link' => $this->parameterBag->get('stripe.payment_link.enterprise'),
                 'features' => [
                     'Cryptomonnaies illimitées',
@@ -288,4 +310,5 @@ class StripeService
             ],
         ];
     }
+
 }

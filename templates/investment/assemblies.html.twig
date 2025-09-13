@@ -1,0 +1,513 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}Assemblées Générales - Crypto Investment Tracker{% endblock %}
+
+{% block page_title %}Assemblées Générales{% endblock %}
+{% block page_subtitle %}Participez aux décisions importantes de vos investissements{% endblock %}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <!-- Filtres -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Tous les statuts</option>
+                                <option value="upcoming">À venir</option>
+                                <option value="ongoing">En cours</option>
+                                <option value="completed">Terminées</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-select" id="typeFilter">
+                                <option value="">Tous les types</option>
+                                <option value="AGO">AGO</option>
+                                <option value="AGE">AGE</option>
+                                <option value="AGM">AGM</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" onclick="resetFilters()">
+                                <i class="fas fa-refresh me-2"></i>Réinitialiser
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des assemblées -->
+    <div class="row" id="assembliesList">
+        {% for assembly in assemblies %}
+            <div class="col-lg-6 mb-4 assembly-card" 
+                 data-status="{{ assembly.status }}" 
+                 data-type="{{ assembly.type }}">
+                <div class="card assembly-item">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="assembly-header">
+                            <h6 class="assembly-company mb-1">{{ assembly.company }}</h6>
+                            <span class="assembly-type">{{ assembly.type }}</span>
+                        </div>
+                        <div class="assembly-status">
+                            <span class="badge bg-{{ assembly.status == 'upcoming' ? 'warning' : (assembly.status == 'ongoing' ? 'info' : 'success') }}">
+                                {{ assembly.status == 'upcoming' ? 'À venir' : (assembly.status == 'ongoing' ? 'En cours' : 'Terminée') }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Date et informations -->
+                        <div class="assembly-info mb-3">
+                            <div class="info-row">
+                                <i class="fas fa-calendar-alt me-2"></i>
+                                <span><strong>Date:</strong> {{ assembly.date|date('d/m/Y à H:i') }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-users me-2"></i>
+                                <span><strong>Type:</strong> {{ assembly.type }}</span>
+                            </div>
+                            <div class="info-row">
+                                <i class="fas fa-vote-yea me-2"></i>
+                                <span><strong>Vote:</strong> 
+                                    {% if assembly.isVotingOpen %}
+                                        <span class="text-success">Ouvert</span>
+                                    {% else %}
+                                        <span class="text-muted">Fermé</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Résolutions -->
+                        <div class="resolutions mb-3">
+                            <h6 class="resolutions-title">
+                                <i class="fas fa-list me-2"></i>Résolutions
+                            </h6>
+                            <ul class="resolutions-list">
+                                {% for resolution in assembly.resolutions %}
+                                    <li class="resolution-item">
+                                        <i class="fas fa-check-circle me-2 text-success"></i>
+                                        {{ resolution }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <!-- Documents -->
+                        <div class="documents mb-3">
+                            <h6 class="documents-title">
+                                <i class="fas fa-file-alt me-2"></i>Documents
+                            </h6>
+                            <div class="documents-list">
+                                {% for document in assembly.documents %}
+                                    <div class="document-item">
+                                        <i class="fas fa-file-pdf text-danger me-2"></i>
+                                        <span>{{ document }}</span>
+                                        <a href="#" class="btn btn-outline-primary btn-sm ms-2">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="assembly-actions">
+                            {% if assembly.isVotingOpen %}
+                                <button class="btn btn-success btn-sm" onclick="openVoting({{ assembly.id }})">
+                                    <i class="fas fa-vote-yea me-1"></i>Voter
+                                </button>
+                            {% endif %}
+                            
+                            {% if assembly.status == 'upcoming' %}
+                                <button class="btn btn-info btn-sm" onclick="registerVideoConference({{ assembly.id }})">
+                                    <i class="fas fa-video me-1"></i>Inscription Visio
+                                </button>
+                            {% endif %}
+                            
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewAssemblyDetails({{ assembly.id }})">
+                                <i class="fas fa-eye me-1"></i>Détails
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Message si aucune assemblée -->
+    {% if assemblies is empty %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucune assemblée générale</h5>
+                        <p class="text-muted">Aucune assemblée générale n'est prévue pour le moment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Statistiques -->
+    <div class="row">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h4 class="stat-number">{{ assemblies|filter(a => a.status == 'upcoming')|length }}</h4>
+                    <p class="stat-label">À Venir</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-vote-yea"></i>
+                    </div>
+                    <h4 class="stat-number">{{ assemblies|filter(a => a.isVotingOpen)|length }}</h4>
+                    <p class="stat-label">Votes Ouverts</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4 class="stat-number">{{ assemblies|filter(a => a.status == 'completed')|length }}</h4>
+                    <p class="stat-label">Terminées</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body text-center">
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <h4 class="stat-number">{{ assemblies|map(a => a.company)|unique|length }}</h4>
+                    <p class="stat-label">Entreprises</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de vote -->
+<div class="modal fade" id="votingModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-vote-yea me-2"></i>Vote - <span id="votingCompany"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="votingContent">
+                    <!-- Le contenu du vote sera chargé ici -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-success" onclick="submitVote()">
+                    <i class="fas fa-check me-2"></i>Confirmer le Vote
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.assembly-item {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 15px;
+}
+
+.assembly-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.assembly-company {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.assembly-type {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.assembly-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.info-row:last-child {
+    margin-bottom: 0;
+}
+
+.resolutions-title, .documents-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.resolutions-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.resolution-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 14px;
+}
+
+.resolution-item:last-child {
+    border-bottom: none;
+}
+
+.documents-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.assembly-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-icon {
+    font-size: 48px;
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.stat-number {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 14px;
+    margin: 0;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    border-radius: 15px;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px 15px 0 0 !important;
+    border: none;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+.badge {
+    font-size: 11px;
+    padding: 6px 10px;
+}
+
+.modal-content {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    border: none;
+}
+
+.modal-title {
+    font-weight: 600;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusFilter = document.getElementById('statusFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const assemblyCards = document.querySelectorAll('.assembly-card');
+
+    function filterAssemblies() {
+        const selectedStatus = statusFilter.value;
+        const selectedType = typeFilter.value;
+
+        assemblyCards.forEach(card => {
+            const status = card.dataset.status;
+            const type = card.dataset.type;
+
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+            const matchesType = !selectedType || type === selectedType;
+
+            if (matchesStatus && matchesType) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    statusFilter.addEventListener('change', filterAssemblies);
+    typeFilter.addEventListener('change', filterAssemblies);
+});
+
+function resetFilters() {
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('typeFilter').value = '';
+    
+    document.querySelectorAll('.assembly-card').forEach(card => {
+        card.style.display = 'block';
+    });
+}
+
+function openVoting(assemblyId) {
+    // Simuler le chargement du contenu de vote
+    document.getElementById('votingCompany').textContent = 'TechCorp Inc.';
+    
+    const votingContent = `
+        <div class="voting-form">
+            <h6>Résolutions à voter :</h6>
+            <div class="resolution-vote mb-3">
+                <div class="resolution-text mb-2">
+                    <strong>1. Approbation des comptes annuels</strong>
+                </div>
+                <div class="vote-options">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="resolution1" id="resolution1_yes" value="yes">
+                        <label class="form-check-label" for="resolution1_yes">
+                            <i class="fas fa-check-circle text-success me-2"></i>Pour
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="resolution1" id="resolution1_no" value="no">
+                        <label class="form-check-label" for="resolution1_no">
+                            <i class="fas fa-times-circle text-danger me-2"></i>Contre
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="resolution1" id="resolution1_abstain" value="abstain">
+                        <label class="form-check-label" for="resolution1_abstain">
+                            <i class="fas fa-minus-circle text-warning me-2"></i>Abstention
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="resolution-vote mb-3">
+                <div class="resolution-text mb-2">
+                    <strong>2. Distribution des dividendes</strong>
+                </div>
+                <div class="vote-options">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="resolution2" id="resolution2_yes" value="yes">
+                        <label class="form-check-label" for="resolution2_yes">
+                            <i class="fas fa-check-circle text-success me-2"></i>Pour
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="resolution2" id="resolution2_no" value="no">
+                        <label class="form-check-label" for="resolution2_no">
+                            <i class="fas fa-times-circle text-danger me-2"></i>Contre
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="resolution2" id="resolution2_abstain" value="abstain">
+                        <label class="form-check-label" for="resolution2_abstain">
+                            <i class="fas fa-minus-circle text-warning me-2"></i>Abstention
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('votingContent').innerHTML = votingContent;
+    
+    const modal = new bootstrap.Modal(document.getElementById('votingModal'));
+    modal.show();
+}
+
+function submitVote() {
+    // Simuler la soumission du vote
+    alert('Vote soumis avec succès !');
+    const modal = bootstrap.Modal.getInstance(document.getElementById('votingModal'));
+    modal.hide();
+}
+
+function registerVideoConference(assemblyId) {
+    // Simuler l'inscription à la visioconférence
+    alert('Inscription à la visioconférence confirmée ! Vous recevrez les détails par email.');
+}
+
+function viewAssemblyDetails(assemblyId) {
+    // Rediriger vers une page de détail (à implémenter)
+    alert('Redirection vers les détails de l\'assemblée...');
+}
+</script>
+{% endblock %}

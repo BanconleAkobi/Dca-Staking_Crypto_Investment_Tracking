@@ -10,10 +10,11 @@
 <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="dashboard-sidebar" id="dashboardSidebar">
+        <div class="sidebar-resize-handle" id="sidebarResizeHandle"></div>
         <div class="sidebar-header">
             <div class="sidebar-brand">
                 <i class="fas fa-chart-line"></i>
-                <span>FolioZen</span>
+                <span class="ms-2">FolioZen</span>
             </div>
             <button class="sidebar-close d-lg-none" id="sidebarClose">
                 <i class="fas fa-times"></i>
@@ -25,7 +26,7 @@
                 <li class="nav-item">
                     <a href="{{ path('app_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'app_dashboard' ? 'active' : '' }}">
                         <i class="fas fa-tachometer-alt"></i>
-                        <span>Tableau de bord</span>
+                        <span class="ms-2">Tableau de bord</span>
                     </a>
                 </li>
                 
@@ -33,28 +34,28 @@
                 <li class="nav-section">
                     <div class="nav-section-title">
                         <i class="fas fa-chart-line"></i>
-                        <span>Investissements</span>
+                        <span class="ms-2">Investissements</span>
                     </div>
                 </li>
                 
                 <li class="nav-item">
                     <a href="{{ path('app_asset_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_asset' ? 'active' : '' }}">
                         <i class="fas fa-chart-pie"></i>
-                        <span>Actifs</span>
+                        <span class="ms-2">Actifs</span>
                     </a>
                 </li>
                 
                 <li class="nav-item">
                     <a href="{{ path('app_savings_account_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_savings_account' ? 'active' : '' }}">
                         <i class="fas fa-piggy-bank"></i>
-                        <span>Épargne</span>
+                        <span class="ms-2">Épargne</span>
                     </a>
                 </li>
                 
                 <li class="nav-item">
                     <a href="{{ path('app_crypto_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_crypto' ? 'active' : '' }}">
                         <i class="fas fa-coins"></i>
-                        <span>Cryptomonnaies</span>
+                        <span class="ms-2">Cryptomonnaies</span>
                     </a>
                 </li>
                 
@@ -62,21 +63,21 @@
                 <li class="nav-section">
                     <div class="nav-section-title">
                         <i class="fas fa-exchange-alt"></i>
-                        <span>Transactions</span>
+                        <span class="ms-2">Transactions</span>
                     </div>
                 </li>
                 
                 <li class="nav-item">
                     <a href="{{ path('app_transaction_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_transaction' ? 'active' : '' }}">
                         <i class="fas fa-exchange-alt"></i>
-                        <span>Transactions</span>
+                        <span class="ms-2">Transactions</span>
                     </a>
                 </li>
                 
                 <li class="nav-item">
                     <a href="{{ path('app_withdrawal_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_withdrawal' ? 'active' : '' }}">
                         <i class="fas fa-money-bill-wave"></i>
-                        <span>Retraits</span>
+                        <span class="ms-2">Retraits</span>
                     </a>
                 </li>
                 
@@ -84,14 +85,21 @@
                 <li class="nav-section">
                     <div class="nav-section-title">
                         <i class="fas fa-chart-bar"></i>
-                        <span>Analyses</span>
+                        <span class="ms-2">Analyses</span>
                     </div>
                 </li>
                 
                 <li class="nav-item">
-                    <a href="{{ path('app_analytics_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_analytics' ? 'active' : '' }}">
+                    <a href="{{ path('app_investment_dashboard') }}" class="nav-link {{ app.request.get('_route') starts with 'app_investment' ? 'active' : '' }}">
                         <i class="fas fa-chart-pie"></i>
-                        <span>Analyses</span>
+                        <span class="ms-2">Investissements</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_analytics_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_analytics' ? 'active' : '' }}">
+                        <i class="fas fa-chart-bar"></i>
+                        <span class="ms-2">Analyses</span>
                     </a>
                 </li>
                 
@@ -99,21 +107,28 @@
                 <li class="nav-section">
                     <div class="nav-section-title">
                         <i class="fas fa-user-cog"></i>
-                        <span>Compte</span>
+                        <span class="ms-2">Compte</span>
                     </div>
                 </li>
                 
                 <li class="nav-item">
                     <a href="{{ path('app_billing_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_billing' ? 'active' : '' }}">
                         <i class="fas fa-credit-card"></i>
-                        <span>Facturation</span>
+                        <span class="ms-2">Facturation</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a href="{{ path('app_communication_notifications') }}" class="nav-link {{ app.request.get('_route') starts with 'app_communication' ? 'active' : '' }}">
+                        <i class="fas fa-bell"></i>
+                        <span class="ms-2">Notifications</span>
                     </a>
                 </li>
                 
                 <li class="nav-item">
                     <a href="{{ path('app_settings_index') }}" class="nav-link {{ app.request.get('_route') starts with 'app_settings' ? 'active' : '' }}">
                         <i class="fas fa-cog"></i>
-                        <span>Paramètres</span>
+                        <span class="ms-2">Paramètres</span>
                     </a>
                 </li>
             </ul>
@@ -267,7 +282,11 @@
 
 {% block javascripts %}
 <script>
+console.log('🚀 SCRIPT BLOCK LOADED - Before DOMContentLoaded!');
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎨 THEME SCRIPT STARTED - Page loaded!');
+    
     // Mobile menu functionality
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const sidebarClose = document.getElementById('sidebarClose');
@@ -432,6 +451,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const newTheme = this.checked ? 'dark' : 'light';
             console.log('New theme:', newTheme);
             
+            // Apply theme immediately for better UX
+            applyTheme(newTheme);
+            
             fetch('{{ path('app_settings_theme', {'theme': 'THEME_PLACEHOLDER'}) }}'.replace('THEME_PLACEHOLDER', newTheme), {
                 method: 'POST',
                 headers: {
@@ -442,13 +464,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('Theme change response:', data);
                 if (data.success) {
-                    applyTheme(newTheme);
                     showNotification('Thème changé avec succès!', 'success');
                 }
             })
             .catch(error => {
                 console.error('Error changing theme:', error);
-                applyTheme(newTheme);
+                // Theme already applied above, so no need to apply again
             });
         });
         
@@ -489,7 +510,73 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize theme on page load
     const savedTheme = localStorage.getItem('theme') || '{{ app.session.get('theme', 'light') }}';
     console.log('Initializing theme:', savedTheme);
+    
+    // Apply theme immediately
     applyTheme(savedTheme);
+    
+    // Force theme application on page load with multiple attempts
+    setTimeout(() => {
+        applyTheme(savedTheme);
+        console.log('Theme re-applied after timeout');
+    }, 50);
+    
+    setTimeout(() => {
+        applyTheme(savedTheme);
+        console.log('Theme re-applied after second timeout');
+    }, 200);
+    
+    // Theme is already applied above, no need for another DOMContentLoaded listener
+    
+    // Sidebar Resize Functionality
+    const sidebarElement = document.getElementById('dashboardSidebar');
+    const resizeHandle = document.getElementById('sidebarResizeHandle');
+    const mainContent = document.querySelector('.dashboard-main');
+    
+    if (resizeHandle && sidebarElement && mainContent) {
+        let isResizing = false;
+        
+        resizeHandle.addEventListener('mousedown', function(e) {
+            isResizing = true;
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', function(e) {
+            if (!isResizing) return;
+            
+            const newWidth = e.clientX;
+            const minWidth = 200;
+            const maxWidth = 400;
+            
+                        if (newWidth >= minWidth && newWidth <= maxWidth) {
+                            sidebarElement.style.width = newWidth + 'px';
+                            mainContent.style.marginLeft = newWidth + 'px';
+                            mainContent.style.width = `calc(100% - ${newWidth}px)`;
+                            mainContent.style.maxWidth = `calc(100vw - ${newWidth}px)`;
+
+                            // Save width to localStorage
+                            localStorage.setItem('sidebarWidth', newWidth);
+                        }
+        });
+        
+        document.addEventListener('mouseup', function() {
+            if (isResizing) {
+                isResizing = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        });
+        
+        // Load saved width
+        const savedWidth = localStorage.getItem('sidebarWidth');
+        if (savedWidth) {
+            sidebarElement.style.width = savedWidth + 'px';
+            mainContent.style.marginLeft = savedWidth + 'px';
+            mainContent.style.width = `calc(100% - ${savedWidth}px)`;
+            mainContent.style.maxWidth = `calc(100vw - ${savedWidth}px)`;
+        }
+    }
     
     // Notification system
     function showNotification(message, type = 'info') {

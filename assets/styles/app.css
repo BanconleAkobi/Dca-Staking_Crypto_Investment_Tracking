@@ -1,8 +1,8 @@
 /* Import modern authentication styles */
-@import './modern-auth.css';
+@import 'modern-auth.css';
 
 /* Import dashboard styles */
-@import './dashboard.css';
+@import 'dashboard.css';
 
 /* Global app styles */
 body {

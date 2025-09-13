@@ -55,15 +55,33 @@ class BillingController extends AbstractController
             return $this->redirectToRoute('app_billing_index');
         }
 
-        // Utilisation des liens de paiement Stripe
-        $paymentLink = $plans[$plan]['payment_link'] ?? null;
-        if (!$paymentLink) {
-            $this->addFlash('error', 'Lien de paiement non configuré pour ce plan.');
+        // Utilisation des Checkout Sessions au lieu des Payment Links
+        try {
+            error_log("=== SUBSCRIBE DEBUG ===");
+            error_log("Plan: " . $plan);
+            error_log("Price ID: " . ($plans[$plan]['price_id'] ?? 'NULL'));
+            error_log("Plan data: " . json_encode($plans[$plan]));
+            
+            $successUrl = $this->generateUrl('app_billing_billing_success', [], true);
+            $cancelUrl = $this->generateUrl('app_billing_billing_cancel', [], true);
+            
+            error_log("Success URL: " . $successUrl);
+            error_log("Cancel URL: " . $cancelUrl);
+            
+            // Créer une session de checkout
+            $sessionId = $this->stripeService->createCheckoutSession($user, $plans[$plan]['price_id'], $successUrl, $cancelUrl);
+            
+            error_log("Session ID created: " . $sessionId);
+            
+            // Redirection vers Stripe Checkout
+            return $this->redirect("https://checkout.stripe.com/pay/" . $sessionId);
+            
+        } catch (\Exception $e) {
+            error_log("Exception in subscribe: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
+            $this->addFlash('error', 'Erreur lors de la création de la session de paiement: ' . $e->getMessage());
             return $this->redirectToRoute('app_billing_index');
         }
-
-        // Redirection directe vers le lien de paiement Stripe
-        return $this->redirect($paymentLink);
     }
 
     #[Route('/success', name: 'billing_success')]
@@ -72,25 +90,50 @@ class BillingController extends AbstractController
         $user = $this->getUser();
         $sessionId = $request->query->get('session_id');
         
+        // Log pour débugger
+        error_log("=== BILLING SUCCESS DEBUG ===");
+        error_log("User ID: " . $user->getId());
+        error_log("User Email: " . $user->getEmail());
+        error_log("Session ID: " . ($sessionId ?? 'NULL'));
+        error_log("All query params: " . json_encode($request->query->all()));
+        
         // Si pas de session_id, on essaie de récupérer les infos du customer Stripe
         if (!$sessionId) {
+            error_log("No session_id, trying to find customer...");
             // Pour les liens de paiement, on va chercher les abonnements récents du customer
             try {
                 $customerId = $this->findOrCreateStripeCustomer($user);
+                error_log("Customer ID: " . $customerId);
+                
                 $subscriptions = $this->stripeService->getRecentSubscriptions($customerId);
+                error_log("Found subscriptions: " . json_encode($subscriptions));
                 
                 if (!empty($subscriptions)) {
                     $latestSubscription = $subscriptions[0];
                     $plan = $this->determinePlanFromAmount($latestSubscription['amount']);
+                    error_log("Determined plan: " . ($plan ?? 'NULL'));
                     
                     if ($plan) {
-                        $this->stripeService->updateUserSubscription($user, $plan, $customerId);
+                        // Update subscription with the actual Stripe subscription ID
+                        error_log("Updating subscription with plan: " . $plan);
+                        $this->stripeService->updateUserSubscriptionWithStripeId(
+                            $user, 
+                            $plan, 
+                            $customerId, 
+                            $latestSubscription['id']
+                        );
+                        error_log("Subscription updated successfully!");
                         $this->addFlash('success', 'Votre abonnement ' . ucfirst($plan) . ' a été activé avec succès !');
+                    } else {
+                        error_log("No plan determined from amount: " . $latestSubscription['amount']);
                     }
                 } else {
+                    error_log("No subscriptions found for customer: " . $customerId);
                     $this->addFlash('warning', 'Paiement détecté mais abonnement non trouvé. Contactez le support.');
                 }
             } catch (\Exception $e) {
+                error_log("Exception in billing success: " . $e->getMessage());
+                error_log("Stack trace: " . $e->getTraceAsString());
                 $this->addFlash('error', 'Erreur lors de la vérification du paiement: ' . $e->getMessage());
             }
             
